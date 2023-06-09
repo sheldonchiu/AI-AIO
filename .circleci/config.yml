@@ -8,7 +8,6 @@ jobs:
   build-amd64:
     machine:
       image: 'ubuntu-2004:current'
-      docker_layer_caching: true
     resource_class: medium
     steps:
       - checkout
@@ -27,7 +26,6 @@ jobs:
   build-arm64:
     machine:
       image: 'ubuntu-2004:current'
-      docker_layer_caching: true
     resource_class: arm.medium
     steps:
       - checkout
