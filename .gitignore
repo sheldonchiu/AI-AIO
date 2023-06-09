@@ -1,0 +1,11 @@
+.web
+*.db
+**/__pycache__/**
+**/__pycache__/**
+node_modules/
+**pynecone.db
+*.zip
+*.py[cod]
+pynecone.db
+__pycache__/
+record.md

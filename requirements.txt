@@ -1,0 +1,5 @@
+gradient
+aiohttp
+python-multipart
+git+https://github.com/sheldonchiu/pynecone.git@test#egg=pynecone
+# pynecone==0.1.24

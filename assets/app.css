@@ -1,0 +1,7 @@
+#workspace-advanced-content {
+    display: none;
+  }
+  
+#workspace-advanced-checkbox:checked + #workspace-advanced-content {
+display: block;
+}

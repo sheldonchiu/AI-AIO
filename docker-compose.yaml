@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  paperspace:
+    image: sheldonxxx/paperspace:latest
+    environment:
+      - BUN_PATH=/app/.bun/bin/bun
+      # - API_URL=
+      # - REDIS_URL=redis:6379
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    networks:
+      - paperspace
+    entrypoint: pc run
+    # entrypoint: pc run --env prod --backend-only
+    
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    networks:
+      - paperspace
+    ports:
+      - 6379:6379
+
+
+networks:
+    paperspace:
+      name: paperspace
