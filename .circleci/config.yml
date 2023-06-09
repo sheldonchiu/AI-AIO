@@ -17,7 +17,7 @@ jobs:
       - run:
           name: "Build and push Docker image (amd64)"
           command: |-
-            IMAGE_NAME=${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}
+            IMAGE_NAME=${DOCKER_USER}/${CONTAINER_NAME}
             VERSION_TAG=`cat version`-amd64
             docker buildx build --build-arg VERSION=${VERSION_TAG} \
               --build-arg "ARCH=${VERSION_TAG##*-}/" \
@@ -36,7 +36,7 @@ jobs:
       - run:
           name: "Build and push Docker image (arm64)"
           command: |-
-            IMAGE_NAME=${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}
+            IMAGE_NAME=${DOCKER_USER}/${CONTAINER_NAME}
             VERSION_TAG=`cat version`-arm64
             docker buildx build --build-arg VERSION=${VERSION_TAG} \
               --build-arg "ARCH=${VERSION_TAG##*-}/" \
@@ -56,7 +56,7 @@ jobs:
       - run:
           name: "Create and Push Docker Manifest"
           command: |-
-            IMAGE_NAME=${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}
+            IMAGE_NAME=${DOCKER_USER}/${CONTAINER_NAME}
             VERSION_TAG=`cat version`
             docker manifest create "${IMAGE_NAME}:${VERSION_TAG}" \
               --amend "${IMAGE_NAME}:${VERSION_TAG}-amd64" \
