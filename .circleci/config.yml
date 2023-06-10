@@ -17,7 +17,7 @@ jobs:
           name: "Build and push Docker image (amd64)"
           command: |-
             IMAGE_NAME=${DOCKER_USER}/${CONTAINER_NAME}
-            VERSION_TAG=`cat version`-amd64
+            VERSION_TAG=${CIRCLE_BRANCH}-`cat version`-amd64
             docker buildx build --build-arg VERSION=${VERSION_TAG} \
               --build-arg "ARCH=${VERSION_TAG##*-}/" \
               -t $IMAGE_NAME:$VERSION_TAG -f Dockerfile .
@@ -35,7 +35,7 @@ jobs:
           name: "Build and push Docker image (arm64)"
           command: |-
             IMAGE_NAME=${DOCKER_USER}/${CONTAINER_NAME}
-            VERSION_TAG=`cat version`-arm64
+            VERSION_TAG=${CIRCLE_BRANCH}-`cat version`-arm64
             docker buildx build --build-arg VERSION=${VERSION_TAG} \
               --build-arg "ARCH=${VERSION_TAG##*-}/" \
               -t $IMAGE_NAME:$VERSION_TAG -f Dockerfile.aarch64 .
@@ -55,7 +55,7 @@ jobs:
           name: "Create and Push Docker Manifest"
           command: |-
             IMAGE_NAME=${DOCKER_USER}/${CONTAINER_NAME}
-            VERSION_TAG=`cat version`
+            VERSION_TAG=${CIRCLE_BRANCH}-`cat version`
             docker manifest create "${IMAGE_NAME}:${VERSION_TAG}" \
               --amend "${IMAGE_NAME}:${VERSION_TAG}-amd64" \
               --amend "${IMAGE_NAME}:${VERSION_TAG}-arm64"
@@ -65,18 +65,9 @@ jobs:
 workflows:
   build:
     jobs:
-      - build-amd64:
-          filters:
-            branches:
-              only: main
-      - build-arm64:
-          filters:
-            branches:
-              only: main
+      - build-amd64
+      - build-arm64
       - create-manifest:
           requires:
             - build-amd64
             - build-arm64
-          filters:
-            branches:
-              only: main
