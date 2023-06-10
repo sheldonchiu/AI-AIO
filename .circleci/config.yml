@@ -65,9 +65,18 @@ jobs:
 workflows:
   build:
     jobs:
-      - build-amd64
-      - build-arm64
+      - build-amd64:
+          filters:
+            branches:
+              only: main
+      - build-arm64:
+          filters:
+            branches:
+              only: main
       - create-manifest:
           requires:
             - build-amd64
             - build-arm64
+          filters:
+            branches:
+              only: main
