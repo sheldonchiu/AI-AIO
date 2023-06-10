@@ -128,7 +128,7 @@ class ControlPanelState(EnvState):
     async def get_storage_size(self):
         await self._execute(self, "du -sh /storage", "Storage Usage: {}", "Failed to get storage size.\n {}")
         clean_exit_task(self, "get_storage_size")
-        
+    
     async def monitor(self):         
         if self.extra_command_url == "":
             print_msg(self, "Error", "Please set the command server URL first.")

@@ -321,17 +321,20 @@ def get_control_panel() -> pc.Component:
                 component_with_title(
                     "Command Server URL",
                     pc.input,
-                    input_kwargs={"id" : f"{prefix}extra_command_url"},
+                    # input_kwargs={"id" : f"{prefix}extra_command_url"},
+                    input_kwargs = {"id" : f"{prefix}extra_command_url", "on_blur": EnvState.set_extra_command_url},
                     # vstack_kwargs={'class_name': "w-4/12", "align_items": "start"}
                 ), 
                 component_with_title("Command Server Username",
                     pc.input,
-                    input_kwargs={"id": f"{prefix}extra_command_user"},
+                    # input_kwargs={"id": f"{prefix}extra_command_user"},
+                    input_kwargs = {"id" : f"{prefix}extra_command_user", "on_blur": EnvState.set_extra_command_user},
                     # vstack_kwargs={"class_name": "w-2/12", "align_items": "start"}/
                 ),
                 component_with_title("Command Server Password",
                     pc.input,
-                    input_kwargs={"id": f"{prefix}extra_command_password"},
+                    # input_kwargs={"id": f"{prefix}extra_command_password"},
+                    input_kwargs = {"id" : f"{prefix}extra_command_password", "on_blur": EnvState.set_extra_command_password},
                     # vstack_kwargs={"class_name": "w-2/12", "align_items": "start"}
                 ),
                 add_cls="overflow-y-auto w-full",

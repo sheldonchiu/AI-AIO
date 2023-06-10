@@ -198,11 +198,13 @@ class EnvState(ToolState):
                         logger.exception(f"Failed to reset {key}")
                     
     def _prepare_env(self, add=False):
+        # Update this when adding new components
         self._environment_variables = {}
         if not add:
             self._add_command(self)
             self._add_discord(self)
         self._add_cloudflared(self,add)
+        self._add_image_browser(self,add)
         self._add_sd_webui(self,add)
         self._add_sd_volta(self, add)
         self._add_fastchat(self,add)
@@ -210,7 +212,7 @@ class EnvState(ToolState):
         self._add_minio(self,add)
         self._add_rclone(self,add)
         # Start tunnel for all the components if using quick tunnel
-        if self.extra_cloudflared_token  == "quick":
+        if self._environment_variables['CF_TOKEN'] == "quick":
             self._add_cloudflared(self,add)
                     
     def _validate_env(self, validate_gpu= False) -> bool:
