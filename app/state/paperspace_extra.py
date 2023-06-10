@@ -256,13 +256,13 @@ class ToolState(NewEnvState):
     extra_image_browser_key: str = ""
     extra_image_browser_required_env_vars: List[str] = ["extra_image_browser_key"]
     
-    def _check_env_command(self, add=False):
+    def _check_env_image_browser(self, add=False):
         return check_env(self, 
                         self.add_image_browser_enable if add else self.extra_image_browser_enable,
                         self.extra_image_browser_required_env_vars
                         )
     
-    def _add_command(self, add=False):
+    def _add_image_browser(self, add=False):
         condition = self.add_image_browser_enable if add else self.extra_image_browser_enable
         if condition:
             self._add_script(self, "image_browser")
