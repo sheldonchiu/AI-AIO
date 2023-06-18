@@ -5,8 +5,11 @@ from app.utils.constants import *
 
 from redis import Redis
 
+import os
 import logging
-logging.basicConfig(level=logging.INFO)
+log_level = os.getenv("APP_LOG_LEVEL", "INFO")
+logging.basicConfig(level=log_level,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class BaseState(pc.State):
     show_alert: bool = False
