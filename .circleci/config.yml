@@ -69,6 +69,7 @@ jobs:
                 name: "Create and Push Docker Manifest (latest)"
                 command: |-
                   IMAGE_NAME=${DOCKER_USER}/${CONTAINER_NAME}
+                  VERSION_TAG=${CIRCLE_BRANCH}-`cat version`
                   docker manifest create "${IMAGE_NAME}:latest" \
                     --amend "${IMAGE_NAME}:${VERSION_TAG}-amd64" \
                     --amend "${IMAGE_NAME}:${VERSION_TAG}-arm64"
