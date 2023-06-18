@@ -3,6 +3,8 @@ import pynecone as pc
 from pynecone import el
 from app.utils.constants import *
 
+from redis import Redis
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -10,8 +12,6 @@ class BaseState(pc.State):
     show_alert: bool = False
     alert_header: str = ""
     alert_msg: str = ""
-    update_state: bool = False
-    
     
 # import after BaseState to avoid circular import
 from app.utils.components import *
@@ -52,7 +52,8 @@ def index() -> pc.Component:
     return el.div(
         # RemoteExecuteHook.create(task_progress=ControlPanelState.task_in_progress, base_state = BaseState),
         StateUpdater.create(vars_to_update = {key: value for key, value in EnvState.vars.items() if key.startswith(prefix_to_watch)},
-                            hook_vars=["result.state"]),
+                            hook_vars=[EnvState.env_id], # Only update when env_id changes to avoid unnecessary updates
+                        ),
         el.div(
             create_navbar(),
             prepare_alert(),
@@ -94,6 +95,8 @@ stylesheets = [
 # Add state and page to the app.
 script_tag = el.script(
     src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.4/flowbite.min.js")
+
+
 app = pc.App(state=BaseState, style=style, stylesheets=stylesheets)
 
 from app.backend.helpers import download_json

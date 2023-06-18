@@ -61,6 +61,7 @@ jobs:
               --amend "${IMAGE_NAME}:${VERSION_TAG}-arm64"
             docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
             docker manifest push "${IMAGE_NAME}:${VERSION_TAG}"
+            docker manifest push "${IMAGE_NAME}:latest"
 
 workflows:
   build:

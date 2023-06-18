@@ -199,6 +199,7 @@ def extra_options(add=False) -> pc.component:
             ),
             pc.accordion_panel(
                 extra_sd_webui(add),
+                extra_sd_comfy(add),
                 extra_sd_volta(add),
                 extra_t2i_image_browser(add),
                 prepare_t2i_model_selection(add),

@@ -231,7 +231,10 @@ class ControlPanelState(EnvState):
                 exit_cleanup()
                 return
             if progress and progress == 100:
-                print_msg(self, "Success", f"Successfully completed {action} {name}.")
+                msg = f"Successfully completed {action} {name}."
+                if action == 'start':
+                    msg += "\nPlease reload cloudflare if using it without token"
+                print_msg(self, "Success", msg)
                 exit_cleanup() 
                 return    
             setattr(self, f"{name}_action_progress",  f"Progress: {progress}% Stage: {state.replace('#','').strip()}")
