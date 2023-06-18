@@ -28,6 +28,11 @@ def print_msg(cls, header: str, msg: str) -> None:
     cls.alert_msg = msg
     cls.show_alert = True
     
+def clean_url(url):
+    if url[-1] == "/":
+        return url[:-1]
+    return url
+    
 async def send_command(cls, command: str):
     """
     Sends a command to a remote server using the execute endpoint.
@@ -45,7 +50,7 @@ async def send_command(cls, command: str):
     Raises:
         None.
     """
-    url = f"{cls.extra_command_url}/execute"
+    url = f"{clean_url(cls.extra_command_url)}/execute"
     auth = aiohttp.BasicAuth(cls.extra_command_user,
                              cls.extra_command_password)
     data = {'command': command}
@@ -78,7 +83,7 @@ async def run_background_task(cls, command: str):
     Raises:
         None.
     """
-    url = f"{cls.extra_command_url}/run"
+    url = f"{clean_url(cls.extra_command_url)}/run"
     auth = aiohttp.BasicAuth(cls.extra_command_user,
                              cls.extra_command_password)
     data = {'command': command}

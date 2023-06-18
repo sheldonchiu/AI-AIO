@@ -206,6 +206,7 @@ class EnvState(ToolState):
         self._add_cloudflared(self,add)
         self._add_image_browser(self,add)
         self._add_sd_webui(self,add)
+        self._add_sd_comfy(self,add)
         self._add_sd_volta(self, add)
         self._add_fastchat(self,add)
         self._add_textgen(self, add)
@@ -370,6 +371,10 @@ class EnvState(ToolState):
                         print_msg(self, "Warning", "Failed to update project id and notebook id to database")
             # get notebook url
             self.notebook_url = self._client.get_notebook_url(notebook)
+        elif notebook.state == "Failed":
+            logger.info("Notebook failed to start, maybe their platform is down")
+            print_msg(self, "Error", "Notebook failed to start, maybe their platform is down")
+            # continue to clean up
         else:
             logger.info("Notebook not running, retrying in 5 seconds")
             self.retry_str = "Waiting for Notebook to start"
@@ -542,6 +547,9 @@ class EnvState(ToolState):
         Args:
             file: The uploaded file.
         """
+        #TODO import to database
+        # 0610 Does not work with WEB_HOSTING=0, delta is not sent to client, 
+        # maybe due to the value set in update_envs is causing issue with the state dirty check 
         upload_data = await file[0].read()
         data = json.loads(upload_data)
         try:

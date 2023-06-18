@@ -141,6 +141,29 @@ class ToolState(NewEnvState):
             self._add_t2i_models(self)
             if self.extra_sd_volta_update:
                 set_value(self, "SD_VOLTA_UPDATE_REPO", "auto", "")
+    
+    #### Stable Diffusion Comfy ####       
+    sd_comfy_action_in_progress: bool = False
+    sd_comfy_action_progress: str = ""
+    sd_comfy_action_log: str = ""
+    sd_comfy_view_log: bool = False
+    sd_comfy_substage: Dict[str, List[str]] = {
+        "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Stable Diffusion Comfy", "download_model" : True}).split("\n") if f],
+        "stop": [],
+        "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Stable Diffusion Comfy", "download_model" : True}).split("\n") if f],
+    }
+    extra_sd_comfy_enable: bool = False
+    add_sd_comfy_enable: bool = False
+    extra_sd_comfy_update: bool = False
+    extra_sd_comfy_required_env_vars: List[str] = [""]
+    
+    def _add_sd_comfy(self, add=False):
+        condition = self.add_sd_comfy_enable if add else self.extra_sd_comfy_enable
+        if condition:
+            self._add_script(self, "sd_comfy")
+            self._add_t2i_models(self)
+            if self.extra_sd_comfy_update:
+                set_value(self, "SD_COMFY_UPDATE_REPO", "auto", "")
 
     #### Minio ####
     minio_action_in_progress: bool = False

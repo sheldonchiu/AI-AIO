@@ -299,12 +299,53 @@ def extra_sd_volta(add=False) -> pc.Component:
                         #wrap="wrap",
                         # spacing="1em",
                     ),
+                    wrap_row(
+                        pc.checkbox("Update to latest", 
+                            id = f"{prefix}extra_sd_volta_update",
+                            class_name=add_class_tag(TEXT_COLOR_CLASS, "text-sm"),
+                        ),  
+                    ),
                     pc.cond(
                         add,
                         pc.cond(
                             EnvState.sd_volta_action_in_progress,
                             progress_log_panel("sd_volta"),
                             component_action_panel("sd_volta"),
+                        ),                         
+                    ),          
+                    class_name = "overflow-y-auto w-full"   
+                ),
+            ) 
+    
+def extra_sd_comfy(add=False) -> pc.Component:
+    prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
+    return  pc.accordion_item(
+                pc.accordion_button(
+                    pc.text("Stable Diffusion Comfy"),
+                    pc.accordion_icon(),
+                    class_name = ACCORDION_BUTTON_CLS,
+                ),
+                pc.accordion_panel(
+                    wrap_row(
+                        pc.checkbox("Enable", 
+                            id = f"{prefix}add_sd_comfy_enable" if add else f"{prefix}extra_sd_comfy_enable",
+                            class_name=add_class_tag(TEXT_COLOR_CLASS, "text-sm"),
+                        ),             
+                        #wrap="wrap",
+                        # spacing="1em",
+                    ),
+                    wrap_row(
+                        pc.checkbox("Update to latest", 
+                            id = f"{prefix}extra_sd_comfy_update",
+                            class_name=add_class_tag(TEXT_COLOR_CLASS, "text-sm"),
+                        ),  
+                    ),
+                    pc.cond(
+                        add,
+                        pc.cond(
+                            EnvState.sd_comfy_action_in_progress,
+                            progress_log_panel("sd_comfy"),
+                            component_action_panel("sd_comfy"),
                         ),                         
                     ),          
                     class_name = "overflow-y-auto w-full"   

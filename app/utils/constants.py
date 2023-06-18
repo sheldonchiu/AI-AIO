@@ -7,7 +7,7 @@ bool_t = lambda x: x.lower() in ['true', 'yes', '1']
 
 WEB_HOSTING = bool_t(os.environ.get("WEB_HOSTING", '0'))
 
-prefix_to_watch = ("env_", "extra_", "add_", "gpu_list")
+prefix_to_watch = ("env_", "extra_", "add_")
 
 FREE_GPU = ['Free-GPU']
 PRO_GPU = ["A4000", "P6000", "P5000", "RTX5000", "RTX4000", "P4000"]
@@ -57,9 +57,8 @@ STAGE_BASE_TEMPLATE = Template('''
 ### Starting {{ title }} ###
 ''')
 FASTCHAT_MODELS = ["vicuna-13b", "vicuna-7b", "chatglm-6b"]
-TEXTGEN_MODELS = [ "vicuna-13B-1.1-GPTQ-4bit-128g",
-                   "vicuna-AlekseyKorshuk-7B-GPTQ-4bit-128g", 
-                   "vicuna-13B-1.1", "vicuna-7B-1.1"
+TEXTGEN_MODELS = [ "vicuna-13B-1.1",
+                   "stable-vicuna-13B"
                 ]
 
 class Page(Enum):

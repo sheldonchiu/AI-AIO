@@ -61,6 +61,19 @@ jobs:
               --amend "${IMAGE_NAME}:${VERSION_TAG}-arm64"
             docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
             docker manifest push "${IMAGE_NAME}:${VERSION_TAG}"
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run: 
+                name: "Create and Push Docker Manifest (latest)"
+                command: |-
+                  IMAGE_NAME=${DOCKER_USER}/${CONTAINER_NAME}
+                  docker manifest create "${IMAGE_NAME}:latest" \
+                    --amend "${IMAGE_NAME}:${VERSION_TAG}-amd64" \
+                    --amend "${IMAGE_NAME}:${VERSION_TAG}-arm64"
+                  docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
+                  docker manifest push "${IMAGE_NAME}:latest"
 
 workflows:
   build:

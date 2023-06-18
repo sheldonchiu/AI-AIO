@@ -13,6 +13,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def add_class_tag(*args: str) -> str:
     """
     Combines multiple class names into a single string, separated by spaces.
@@ -75,9 +76,9 @@ def wrap_row(*content: pc.Component, add_cls: str = None, **kwargs) -> pc.Compon
 
 
 def wrap_tooltip(content: pc.Component,
-                title: str,
-                tooltip_id: str = None,
-                ) -> Tuple[pc.Component, pc.Component]:
+                 title: str,
+                 tooltip_id: str = None,
+                 ) -> Tuple[pc.Component, pc.Component]:
     """
     Creates a button component with a tooltip.
 
@@ -141,7 +142,7 @@ def component_with_title(title: str,
     )
 
 
-def custom_code_block(content: pc.Component, id:str = None) -> pc.Component:
+def custom_code_block(content: pc.Component, id: str = None) -> pc.Component:
     """
     Creates a custom code block component.
 
@@ -163,7 +164,6 @@ def custom_code_block(content: pc.Component, id:str = None) -> pc.Component:
     )
 
 
-
 class StateUpdater(pc.Component):
     """A component that defines a hook for updating state variables in a React component.
 
@@ -174,13 +174,14 @@ class StateUpdater(pc.Component):
         vars_to_update (List[Var]): A list of variables to update when the hook is called.
     """
 
-    library = "/utils/state"
-    tag = "stateupdater"
+    library = "/public/watcher"
+    tag = "getRefValues,updateRefValues"
+
     var_name = "value"
     prefix = ""
 
     hook_vars: List[Union[Var, str]] = []
-
+    update_control: str = None
     vars_to_update = {}
 
     def render(self) -> str:
@@ -193,30 +194,28 @@ class StateUpdater(pc.Component):
         Returns:
             Optional[str]: A string containing the generated hook.
         """
+
         template_str = """
         const ref_mapping = {{ ref_mapping }};
         useEffect(() => {
-            if(result.state != null){
-                updateRefValues(result.state, ref_mapping);
-            }
+            updateRefValues(base_state, ref_mapping);
         }{{ hook }})
             """
-
-        def format_var(var):
-            return re.sub("[{}]", "", var.__str__())
 
         if len(self.hook_vars) == 0:
             hook = ""
         else:
-            hook = ',[' + ','.join([format_var(var)
+            hook = ',[' + ','.join([var.full_name
                                     if types._issubclass(type(var), Var) else var
                                    for var in self.hook_vars]) + ']'
+        ref_mapping = {key: value.full_name for key,
+                       value in self.vars_to_update.items()}
 
-        ref_mapping = {key: value.full_name for key, value in self.vars_to_update.items()}
+        return Template(dedent(template_str)).render(hook=hook,
+                                                     ref_mapping=ref_mapping,
+                                                     )
 
 
-        return Template(dedent(template_str)).render(hook=hook, ref_mapping=ref_mapping)
-    
 class RemoteExecuteHook(pc.Component):
     """A component that defines a hook for updating state variables in a React component.
 
@@ -230,10 +229,10 @@ class RemoteExecuteHook(pc.Component):
     library = "/public/api"
     tag = "executeCommand"
     is_default = True
-    
+
     task_progress: Optional[Var]
     base_state: Optional[Type[pc.State]]
-    
+
     def __init__(self, task_progress: Var, base_state: Type[pc.State], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.task_progress = task_progress
@@ -292,9 +291,9 @@ class RemoteExecuteHook(pc.Component):
     };
     '''
         return Template(dedent(template)).render(task_progress=self.task_progress.full_name,
-                                                 show_alert = self.base_state.show_alert.full_name,
+                                                 show_alert=self.base_state.show_alert.full_name,
                                                  alert_header=self.base_state.alert_header.full_name,
-                                                 alert_msg = self.base_state.alert_msg.full_name)
+                                                 alert_msg=self.base_state.alert_msg.full_name)
 
 
 def prepare_tab_button(title, tab_id, selected=False) -> pc.Component:
@@ -349,9 +348,12 @@ def prepare_tab_content(content, tab_id) -> pc.Component:
 
     return output
 
-js_getRefValues = BaseVar(name="getRefValues(refs)", is_local=True, is_string=False)
 
-def get_ref_value_fn(refs: List[str]=None, prefix=None) -> str:
+js_getRefValues = BaseVar(name="getRefValues(refs)",
+                          is_local=True, is_string=False)
+
+
+def get_ref_value_fn(refs: List[str] = None, prefix=None) -> str:
     if refs is None:
         refs = "refs"
     else:
@@ -361,12 +363,14 @@ def get_ref_value_fn(refs: List[str]=None, prefix=None) -> str:
     else:
         func = f"getRefValues({refs})"
     return BaseVar(name=func, is_local=True, is_string=False)
+
+
 class SpecialButton(pc.Button):
-    #{execure_remote_command}
+    # {execure_remote_command}
     special_on_click: str = None
 
     @classmethod
-    def create(cls, *args, special_on_click: str=None, **kwargs) -> pc.Component:
+    def create(cls, *args, special_on_click: str = None, **kwargs) -> pc.Component:
         """Create a Bare component, with no tag.
 
         Args:
@@ -378,7 +382,7 @@ class SpecialButton(pc.Button):
         output = super().create(*args, **kwargs)
         output.special_on_click = special_on_click
         return output
-    
+
     def render(self) -> Dict:
         """Render the component.
 
@@ -387,7 +391,7 @@ class SpecialButton(pc.Button):
         """
         tag = self._render()
         tag.props.pop('specialOnClick')
-        
+
         output = dict(
             tag.add_props(
                 # **self.event_triggers,
@@ -404,22 +408,24 @@ class SpecialButton(pc.Button):
         )
         if self.special_on_click:
             special_on_click = ';'.join(self.special_on_click)
-            output['props'].append("onClick={() => { %s }}" % (special_on_click))
-            
+            output['props'].append(
+                "onClick={() => { %s }}" % (special_on_click))
+
             # output['props'].append(f"onClick={self.special_on_click}")
         return output
-    
-specialButton = SpecialButton.create          
-                                         
+
+
+specialButton = SpecialButton.create
+
 # class MultiSelect(pc.Component):
 #     library = "react-select"
 #     tag = "MultiSelect"
 #     is_default = True
-    
+
 #     is_multi: Var[bool] = False
-#     default_value: Var[List[str]] = [] 
-    
+#     default_value: Var[List[str]] = []
+
 #     menu_position: Var[str] = "fixed"
 #     menu_placement: Var[str] = "bottom"
-    
-#     options: Var[List[Dict[str,str]]] = [] 
+
+#     options: Var[List[Dict[str,str]]] = []
