@@ -313,7 +313,7 @@ def prepare_sync_env_button() -> pc.Component:
                 id="sync-env-button",
                 class_name=BUTTON_CLS,
                 on_click=[
-                    EnvState.sync
+                    EnvState.sync(get_ref_value_fn(refs=["main__env_api_key"]))
                 ]
             ),
             title="Sync environment from Paperspace",

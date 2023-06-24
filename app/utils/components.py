@@ -357,7 +357,7 @@ def get_ref_value_fn(refs: List[str] = None, prefix=None) -> str:
     if refs is None:
         refs = "refs"
     else:
-        refs = '[' + ",".join([f"ref_{ref}" for ref in refs]) + ']'
+        refs = '[' + ",".join([f'''"ref_{ref}"''' for ref in refs]) + ']'
     if prefix is not None:
         func = f"getRefValues({refs}, 'ref_{prefix}')"
     else:

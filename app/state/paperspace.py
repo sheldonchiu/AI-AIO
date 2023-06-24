@@ -406,6 +406,7 @@ class EnvState(ToolState):
   
         return [[gpu, self.gpu_available[gpu]] for gpu in target_gpu_list]    
     
+    @batch_update_state
     def sync(self):
         if self.env_api_key == "":
             print_msg(self, "Error", "Please enter API key")
@@ -445,7 +446,6 @@ class EnvState(ToolState):
         except:
             print_msg(self, "Error", "The given environment id is not valid")
             return
-        
         for env in self.environments:
             if env.id == selected_id:
                 row = env
