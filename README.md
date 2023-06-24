@@ -3,7 +3,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/bb2899b5-ab80-4e1d-a593-75efcc747949/deploy-status)](https://app.netlify.com/sites/clinquant-licorice-965aa0/deploys) [![CircleCI](https://dl.circleci.com/status-badge/img/gh/sheldonchiu/PaperSpace-AI-AIO/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/sheldonchiu/PaperSpace-AI-AIO/tree/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Ultimate AI tooltox for Paperpsace Gradient user**
+**Ultimate AI Toolbox for Paperpsace Gradient**
 <div align="left">
 
 ## 🎯 Main Features
