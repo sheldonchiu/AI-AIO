@@ -1,5 +1,5 @@
 gradient
 aiohttp
 python-multipart
-git+https://github.com/sheldonchiu/pynecone.git@f869dc183f1af8dab4001b91709b599b0e96bc90#egg=pynecone
+git+https://github.com/sheldonchiu/pynecone.git@2a1c2d60c15e75ed3ca21e5d6f9057966e0b95f7#egg=pynecone
 # pynecone==0.1.24
