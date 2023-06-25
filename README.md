@@ -23,14 +23,14 @@
 
 ## Avilable Tools
 
-|Image generation|Large Language Model|Uitlity|
+|Image generation|Large Language Model|Utility|
 |---|---|---|
 |[Stable Diffusion web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)👍|[Text Generation WebUI](https://github.com/oobabooga/text-generation-webui)👍|[A Standalone Image browser](https://github.com/zanllp/sd-webui-infinite-image-browsing.git)|
 |[Stable Diffusion Comfy](https://github.com/comfyanonymous/ComfyUI)👍|[FastChat](https://github.com/lm-sys/FastChat)|Command Server to execute command using REST API|
-|[Stable Diffusion Volta ](https://github.com/VoltaML/voltaML-fast-stable-diffusion)|   |Model Downloader|
-| | |Cloudflare Tunnel (account not required)|
-| | |Sync to Minio S3  |
-| | |Rclone Web File Broswer |
+|[Stable Diffusion Volta ](https://github.com/VoltaML/voltaML-fast-stable-diffusion)|   |Model Downloader (support Huggingface, Civitai, URL)|
+| | |Remote access the tools using Cloudflare Tunnel (account not required)|
+| | |Sync files to Minio S3  |
+| | |Web File Browser |
 | | |Discord Notification |
 
 
@@ -49,7 +49,7 @@ docker run -p3000:3000 -p 8000:8000 sheldonxxxx/paperspace-ai-aio:latest
 Visit http://localhost:3000 to access the web UI.
 
 ## User Guide
-🚧 Coming soon
+<a>https://www.sheldonxxxx.cc/ai/meet-the-ultimate-ai-toolbox-for-gradient/</a>
 
 ## Development Guide
 🚧 Coming soon

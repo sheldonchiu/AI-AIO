@@ -183,6 +183,8 @@ class ControlPanelState(EnvState):
             return self.compress_folder
         elif self.zip_target_path == "":
             print_msg(self, "Error", "Target path cannot be empty.")
+            exit_cleanup()
+            return
         else:
             command = f"ZIP_TARGET_PATH={self.zip_target_path} bash /notebooks/utils/compress.sh > {log_path} 2>&1 &"
             try:
