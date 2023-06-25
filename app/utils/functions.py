@@ -228,5 +228,10 @@ def get_page_id_prefix(page_id):
     elif page_id == Page.control_panel:
         return "control_panel__"
     
-    
-            
+def get_next_id(env): 
+    test_id = 0
+    used_id = [i.id for i in env]
+    while True:
+        if test_id not in used_id: 
+            return test_id
+        test_id += 1

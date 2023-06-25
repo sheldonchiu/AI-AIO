@@ -96,7 +96,8 @@ class PaperspaceState(BaseState):
         if WEB_HOSTING == False:
             try:
                 with pc.session() as session:
-                    self.environments = session.exec(select(Environment)).all()
+                    self.environments.clear()
+                    self.environments.extend(session.exec(select(Environment)).all())
             except:
                 print_msg(self, "Error", "Failed to fetch environments from database.")
 
@@ -501,14 +502,9 @@ class EnvState(ToolState):
                             self.environments[idx] = data
                             break
                 else:
-                    test_id = 0
-                    used_id = [i.id for i in self.environments]
-                    while True:
-                        if test_id not in used_id:
-                            data.id = test_id
-                            self.env_id = str(data.id)
-                            break
-                        test_id += 1
+                    id = get_next_id(self.environments)
+                    data.id = id
+                    self.env_id = str(id)
                     self.environments.append(data)
             else:
                 with pc.session() as session:
@@ -546,15 +542,14 @@ class EnvState(ToolState):
 
         Args:
             file: The uploaded file.
-        """
-        #TODO import to database
-        # 0610 Does not work with WEB_HOSTING=0, delta is not sent to client, 
-        # maybe due to the value set in update_envs is causing issue with the state dirty check 
+        """ 
         upload_data = await file[0].read()
         data = json.loads(upload_data)
         try:
-            self.environments.clear()
-            self.environments.extend([Environment(**d) for d in data])
+            env = [Environment(**d) for d in data]
+            for e in env:
+                e.id = get_next_id(self.environments)
+            self.environments.extend(env)
         except:
             print_msg(self, "Error", "Invalid JSON")
             return
@@ -570,12 +565,12 @@ class EnvState(ToolState):
             print_msg(self, "Info", "Please select a saved environment to delete")
             return
         
-        if WEB_HOSTING:
-            for env in self.environments:
-                if env.id == int(env_id):
-                    self.environments.remove(env)
-                    break
-        else:
+        for env in self.environments:
+            if env.id == int(env_id):
+                self.environments.remove(env)
+                break
+            
+        if not WEB_HOSTING:
             with pc.session() as session:
                 row = session.query(Environment).filter(Environment.id == env_id)
                 row.delete()
@@ -584,6 +579,5 @@ class EnvState(ToolState):
         # self._reset_env(self, all=True)
         self.env_type = ""
         self.env_id = ""
-        self.update_envs.fn(self)
         print_msg(self, "Success", "Environment deleted")
     
