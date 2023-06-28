@@ -13,6 +13,7 @@ import time
 import json
 from collections import OrderedDict
 from pynecone import constants
+import gradient
 
 import logging
 logger = logging.getLogger(__name__)
@@ -334,7 +335,10 @@ class EnvState(ToolState):
                     # raise Exception
                 # Success, proceed to check status
                 return self.check_notebook_status
-            except:
+            except gradient.api_sdk.sdk_exceptions.ResourceFetchingError:
+                # don't continue if encounter this error
+                raise
+            except Exception as e:
                 # Sometimes the GPU is not available after the first check
                 logger.exception("Failed to start notebook")
                 self.retry_str = "Failed to start"
@@ -423,7 +427,7 @@ class EnvState(ToolState):
             if self.env_project_id != "":
                 try:
                     self._toggle_power(self, False)
-                    for notebook in client.get_notobooks_by_project_id(self.env_project_id):             
+                    for notebook in client.get_notobooks_by_project_name(f"{self.env_name} From Toolbox"):             
                         if notebook.state == "Running":
                             self.notebook_url = client.get_notebook_url(notebook)
                             self._toggle_power(self, True)
