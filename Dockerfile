@@ -35,7 +35,7 @@ FROM runtime as init
 WORKDIR /app
 ENV BUN_INSTALL="/app/.bun"
 COPY --from=build /app/ /app/
-RUN pc init
+RUN reflex init
 
 
 FROM runtime
@@ -45,7 +45,7 @@ USER reflex
 WORKDIR /app
 
 ENV BUN_PATH="/app/.bun/bin/bun"
-CMD ["pc","run" , "--env", "prod"]
+CMD ["reflex","run" , "--env", "prod"]
 
 
 EXPOSE 3000
