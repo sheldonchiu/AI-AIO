@@ -3,15 +3,15 @@ from app.utils.constants import *
 from app.utils.functions import *
 from app.state.paperspace import PaperspaceState, NewEnvState, EnvState
 from .paperspace_extra import *
-import pynecone as pc
-from pynecone import el
-from pynecone.vars import BaseVar
+import reflex as rx
+from reflex import el
+from reflex.vars import BaseVar
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-def prepare_upload_modal() -> pc.Component:
+def prepare_upload_modal() -> rx.Component:
     output = el.div(
         el.button(
             "Import",
@@ -30,7 +30,7 @@ def prepare_upload_modal() -> pc.Component:
                             class_name="text-xl font-semibold text-gray-900 dark:text-white",
                         ),
                         el.button(
-                            pc.html('''<svg aria-hidden='true' class='w-5 h-5' fill='currentColor' viewbox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'><path clip-rule='evenodd' d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z' fill-rule='evenodd'></path></svg>'''),
+                            rx.html('''<svg aria-hidden='true' class='w-5 h-5' fill='currentColor' viewbox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'><path clip-rule='evenodd' d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z' fill-rule='evenodd'></path></svg>'''),
                             el.span(
                                 "Close modal",
                                 class_name="sr-only",
@@ -43,15 +43,15 @@ def prepare_upload_modal() -> pc.Component:
                         class_name="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600",
                     ),
                     wrap_row(
-                        pc.upload(
-                            pc.vstack(
+                        rx.upload(
+                            rx.vstack(
                                 el.button(
                                     "Select File",
                                     class_name=NORMAL_BUTTON_CLS,
                                     type="button",
                                     # color=color,
                                 ),
-                                pc.text(
+                                rx.text(
                                     "Drag and drop files here or click to select files",
                                     class_name=TEXT_COLOR_CLASS,
                                 ),
@@ -71,7 +71,7 @@ def prepare_upload_modal() -> pc.Component:
                             type="button",
                             class_name=NORMAL_BUTTON_CLS,
                             on_click=lambda: EnvState.import_env(
-                                pc.upload_files()
+                                rx.upload_files()
                             ),
                             custom_attrs={
                                 'data-modal-hide': 'upload-select-modal'}
@@ -98,12 +98,12 @@ def prepare_upload_modal() -> pc.Component:
     return output
 
 
-def prepare_existing_env_form() -> pc.Component:
+def prepare_existing_env_form() -> rx.Component:
     prefix = get_page_id_prefix(Page.main)
     output = wrap_card(
         wrap_row(
             component_with_title("Environment Name",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      'id': f"{prefix}env_name", 'is_required': True},
                                  vstack_kwargs={'align_items': "start"},
@@ -112,13 +112,13 @@ def prepare_existing_env_form() -> pc.Component:
         ),
         wrap_row(
             component_with_title("Project ID",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      "id": f"{prefix}env_project_id", 'is_required': True},
                                  vstack_kwargs={'align_items': "start"},
                                  ),
             component_with_title("Notebook ID",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      "id": f"{prefix}env_notebook_id", 'is_required': True},
                                  vstack_kwargs={'align_items': "start"},
@@ -130,12 +130,12 @@ def prepare_existing_env_form() -> pc.Component:
     return output
 
 
-def workspace_advanced() -> pc.component:
+def workspace_advanced() -> rx.component:
     prefix = get_page_id_prefix(Page.main)
     output = el.div(
         wrap_row(
             component_with_title("Workspace Ref (Optional)",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      "id": f"{prefix}env_workspace_ref"},
                                  vstack_kwargs={"align_items": "start"}
@@ -144,13 +144,13 @@ def workspace_advanced() -> pc.component:
         ),
         wrap_row(
             component_with_title("Workspace Username (Optional)",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      "id": f"{prefix}env_workspace_username"},
                                  vstack_kwargs={"align_items": "start"}
                                  ),
             component_with_title("Workspace Password (Optional)",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      "id": f"{prefix}env_workspace_password"},
                                  vstack_kwargs={"align_items": "start"}
@@ -161,18 +161,18 @@ def workspace_advanced() -> pc.component:
     return output
 
 
-def container_advanced() -> pc.component:
+def container_advanced() -> rx.component:
     prefix = get_page_id_prefix(Page.main)
     output = el.div(
         wrap_row(
             component_with_title("Container Username (Optional)",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      "id": f"{prefix}env_registry_username"},
                                  vstack_kwargs={"align_items": "start"}
                                  ),
             component_with_title("Container Password (Optional)",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      "id": f"{prefix}env_registry_password"},
                                  vstack_kwargs={"align_items": "start"}
@@ -183,46 +183,51 @@ def container_advanced() -> pc.component:
     return output
 
 
-def extra_options(add=False) -> pc.component:
+def extra_options(add=False) -> rx.component:
     utilities = [] if add else [extra_command(add)]
     utilities += [extra_cloudflare(add),
                   extra_minio(add),
                   extra_rclone(add),
                   extra_discord(),
                 ]
-    return pc.accordion(
-        pc.accordion_item(
-            pc.accordion_button(
-                pc.text("Text to Image"),
-                pc.accordion_icon(),
+    sd = [
+        extra_sd_webui(add),
+        extra_sd_comfy(add),
+        extra_sd_volta(add),
+        extra_t2i_image_browser(add)
+    ]
+    if not add:
+        sd += [prepare_t2i_model_selection(add)]
+    return rx.accordion(
+        rx.accordion_item(
+            rx.accordion_button(
+                rx.text("Stable Diffusion"),
+                rx.accordion_icon(),
                 class_name=ACCORDION_BUTTON_CLS,
             ),
-            pc.accordion_panel(
-                extra_sd_webui(add),
-                extra_sd_comfy(add),
-                extra_sd_volta(add),
-                extra_t2i_image_browser(add),
-                prepare_t2i_model_selection(add),
-            ),
+            rx.accordion_panel(*sd),
         ),
-        pc.accordion_item(
-            pc.accordion_button(
-                pc.text("Large Language Model (LLM)"),
-                pc.accordion_icon(),
+        rx.accordion_item(
+            rx.accordion_button(
+                rx.text("Large Language Model (LLM)"),
+                rx.accordion_icon(),
                 class_name=ACCORDION_BUTTON_CLS,
             ),
-            pc.accordion_panel(
+            rx.accordion_panel(
                 extra_textgen(add),
                 extra_fastchat(add),
+                extra_flowise(add),
+                extra_langflow(add),
+                extra_llm_model_download(add),
             ),
         ),
-        pc.accordion_item(
-            pc.accordion_button(
-                pc.text("Utilities"),
-                pc.accordion_icon(),
+        rx.accordion_item(
+            rx.accordion_button(
+                rx.text("Utilities"),
+                rx.accordion_icon(),
                 class_name=ACCORDION_BUTTON_CLS,
             ),
-            pc.accordion_panel(
+            rx.accordion_panel(
                 *utilities,
             ),
         ),
@@ -232,22 +237,22 @@ def extra_options(add=False) -> pc.component:
     )
 
 
-def env_for_new_notebook() -> pc.Component:
+def env_for_new_notebook() -> rx.Component:
     prefix = get_page_id_prefix(Page.main)
     output = wrap_card(
         wrap_row(
             component_with_title("Environment Name",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={
                                      'id': f"{prefix}env_name", 'is_required': True},
                                  vstack_kwargs={'align_items': "start"},
                                  ),
             # TODO: not sure how to change select to use id and ref
             component_with_title("Auto-shutdown timeout",
-                                 pc.select,
-                                 pc.foreach(
+                                 rx.select,
+                                 rx.foreach(
                                      paperspace_timeout_options,
-                                     lambda o: pc.option(
+                                     lambda o: rx.option(
                                          o, class_name=SELECT_OPTION_CLS),
                                  ),
                                  input_kwargs={"id": f"{prefix}env_auto_timeout",
@@ -262,7 +267,7 @@ def env_for_new_notebook() -> pc.Component:
         ),
         wrap_row(
             component_with_title("Workspace",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={"id": f"{prefix}env_workspace"},
                                  vstack_kwargs={
                                      'class_name': "w-full", "align_items": "start"}
@@ -272,7 +277,7 @@ def env_for_new_notebook() -> pc.Component:
         workspace_advanced(),
         wrap_row(
             component_with_title("Container",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={"id": f"{prefix}env_container"},
                                  vstack_kwargs={
                                      'class_name': "w-full", "align_items": "start"}
@@ -282,7 +287,7 @@ def env_for_new_notebook() -> pc.Component:
         container_advanced(),
         wrap_row(
             component_with_title("Command",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={"id": f"{prefix}env_command"},
                                  vstack_kwargs={
                                      'class_name': "w-full", "align_items": "start"}
@@ -295,7 +300,7 @@ def env_for_new_notebook() -> pc.Component:
     return output
 
 
-def prepare_sync_env_button() -> pc.Component:
+def prepare_sync_env_button() -> rx.Component:
     output = el.div(
         # button = el.button(
         #     component,
@@ -308,7 +313,7 @@ def prepare_sync_env_button() -> pc.Component:
         # )
         *wrap_tooltip(
             el.button(
-                pc.icon(tag="repeat"),
+                rx.icon(tag="repeat"),
                 size='sm',
                 id="sync-env-button",
                 class_name=BUTTON_CLS,
@@ -323,9 +328,9 @@ def prepare_sync_env_button() -> pc.Component:
     return output
 
 
-def prepare_create_env_select_button() -> pc.Component:
+def prepare_create_env_select_button() -> rx.Component:
     create_button = el.button(
-        pc.icon(tag="add"),
+        rx.icon(tag="add"),
         size='sm',
         id="create-env-select-button",
         class_name="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600",
@@ -367,11 +372,11 @@ def prepare_create_env_select_button() -> pc.Component:
     )
 
 
-def prepare_gpu_list(gpu_list) -> pc.Component:
+def prepare_gpu_list(gpu_list) -> rx.Component:
     prefix = get_page_id_prefix(Page.main)
     return el.div(
         *[
-            pc.checkbox(gpu,
+            rx.checkbox(gpu,
                         id=f"{prefix}gpu_list__{ALL_GPU.index(gpu)}",
                         class_name=EnvState.gpu_available[gpu],
                         width="100%",
@@ -381,24 +386,24 @@ def prepare_gpu_list(gpu_list) -> pc.Component:
     )
 
 
-def prepare_gpu_panel() -> pc.Component:
+def prepare_gpu_panel() -> rx.Component:
     gpu_panel = wrap_card(
-        pc.vstack(
+        rx.vstack(
             el.h5(
                 "Gpu Manager",
                 class_name=HEADING_CLASS,
                 align="center"
             ),
             wrap_row(
-                pc.accordion(
+                rx.accordion(
                     *[
-                        pc.accordion_item(
-                            pc.accordion_button(
-                                pc.text(title),
-                                pc.accordion_icon(),
+                        rx.accordion_item(
+                            rx.accordion_button(
+                                rx.text(title),
+                                rx.accordion_icon(),
                                 class_name=ACCORDION_BUTTON_CLS,
                             ),
-                            pc.accordion_panel(
+                            rx.accordion_panel(
                                 prepare_gpu_list(gpu_list),
                             ),
                         )
@@ -417,21 +422,21 @@ def prepare_gpu_panel() -> pc.Component:
     return gpu_panel
 
 
-def prepare_env_panel() -> pc.Component:
+def prepare_env_panel() -> rx.Component:
     env_panel = wrap_card(
-        pc.vstack(
+        rx.vstack(
             el.h5(
                 "Environment Manager",
                 class_name=HEADING_CLASS,
                 align="center"
             ),
-            pc.vstack(
+            rx.vstack(
                 wrap_row(
                     el.div(
-                        pc.select(
+                        rx.select(
                             # BaseVar(name=f'{env.name}.name') cannot use "name" in Model, or it will conflict with name in BaseVar, which is a random var name for js
-                            pc.foreach(PaperspaceState.environments,
-                                       lambda env: pc.option(
+                            rx.foreach(PaperspaceState.environments,
+                                       lambda env: rx.option(
                                            env.env_name,
                                            value=env.id,
                                            class_name=SELECT_OPTION_CLS,
@@ -452,11 +457,11 @@ def prepare_env_panel() -> pc.Component:
                     prepare_create_env_select_button(),
                     prepare_sync_env_button(),
                 ),
-                pc.cond(
+                rx.cond(
                     PaperspaceState.env_type == "existing",
                     prepare_existing_env_form(),
                 ),
-                pc.cond(
+                rx.cond(
                     PaperspaceState.env_type == "new",
                     env_for_new_notebook(),
                 ),
@@ -466,7 +471,7 @@ def prepare_env_panel() -> pc.Component:
             ),
             wrap_row(
                 prepare_upload_modal(),
-                pc.link(
+                rx.link(
                     el.button("Export", class_name=TEXT_COLOR_CLASS),
                     class_name="pl-2 pr-4",
                     size="md",
@@ -474,12 +479,12 @@ def prepare_env_panel() -> pc.Component:
                     button=True,
                     is_external=True,
                 ),
-                pc.button(
+                rx.button(
                     "Save",
                     bg="blue.600",
                     class_name=BUTTON_TEXT_CLS,
                     size="md",
-                    is_disabled=pc.cond(
+                    is_disabled=rx.cond(
                         PaperspaceState.is_env_selected, False, True),
                     on_click=[
                         lambda: EnvState.save_env(
@@ -487,12 +492,12 @@ def prepare_env_panel() -> pc.Component:
                         PaperspaceState.update_envs,
                     ]
                 ),
-                pc.button(
+                rx.button(
                     "Delete",
                     bg="red.600",
                     class_name=BUTTON_TEXT_CLS,
                     size="md",
-                    is_disabled=pc.cond(
+                    is_disabled=rx.cond(
                         PaperspaceState.is_env_selected, False, True),
                     on_click=lambda: EnvState.del_env(EnvState.env_id)
                 ),
@@ -507,42 +512,42 @@ def prepare_env_panel() -> pc.Component:
     return env_panel
 
 
-def prepare_power_panel() -> pc.Component:
+def prepare_power_panel() -> rx.Component:
     prefix = get_page_id_prefix(Page.main)
     power_panel = wrap_card(
         wrap_row(
             el.div(
                 # power light
-                pc.html('''<svg aria-hidden='true' class='w-6 h-6' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'>
+                rx.html('''<svg aria-hidden='true' class='w-6 h-6' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'>
                             <path clip-rule='evenodd' d='M10 2a.75.75 0 01.75.75v7.5a.75.75 0 01-1.5 0v-7.5A.75.75 0 0110 2zM5.404 4.343a.75.75 0 010 1.06 6.5 6.5 0 109.192 0 .75.75 0 111.06-1.06 8 8 0 11-11.313 0 .75.75 0 011.06 0z' fill-rule='evenodd'></path>
                         </svg>'''
                         ),
                 class_name=BaseVar(
                     name=f"text-${PaperspaceState.power_light}", is_local=True, is_string=True)
             ),
-            pc.cond(
+            rx.cond(
                 PaperspaceState.display_retry_count,
-                pc.text(
+                rx.text(
                     PaperspaceState.retry_count_str,
                     class_name=add_class_tag(TEXT_COLOR_CLASS, "text-sm"),
                 ),
             ),
         ),
-        pc.vstack(
+        rx.vstack(
             el.h5(
                 "Power Control",
                 class_name=HEADING_CLASS,
                 align="center"
             ),
             component_with_title("Paperspace API Key",
-                                 pc.input,
+                                 rx.input,
                                  input_kwargs={'id': f"{prefix}env_api_key"},
                                  vstack_kwargs={'class_name': "w-full pb-2",
                                                 "align_items": "start"}
                                  ),
-            pc.cond(
+            rx.cond(
                 PaperspaceState.show_progress_for_start_button,
-                pc.button(
+                rx.button(
                     "Interrupt",
                     bg="red.600",
                     class_name=BUTTON_TEXT_CLS,
@@ -552,7 +557,7 @@ def prepare_power_panel() -> pc.Component:
                             "start_notebook"),
                     ]
                 ),
-                pc.button(
+                rx.button(
                     PaperspaceState.power_button,
                     class_name=NORMAL_BUTTON_CLS,
                     size="md",
@@ -572,15 +577,15 @@ def prepare_power_panel() -> pc.Component:
     return power_panel
 
 
-def get_paperpace_panel() -> pc.Component:
+def get_paperpace_panel() -> rx.Component:
     output = el.div(
-        pc.wrap(
-            pc.vstack(
-                pc.cond(
+        rx.wrap(
+            rx.vstack(
+                rx.cond(
                     EnvState.notebook_url != "",
                     component_with_title(
                         "Notebook URL",
-                        pc.link,
+                        rx.link,
                         EnvState.notebook_url,
                         input_kwargs={
                             "href": EnvState.notebook_url, "is_external": True},
@@ -594,7 +599,7 @@ def get_paperpace_panel() -> pc.Component:
                     class_name="w-[300px]"
                 ),
             ),
-            # pc.spacer(),
+            # rx.spacer(),
             el.div(
                 prepare_env_panel(),
                 class_name="md:w-1/2 overflow-y-auto w-full"

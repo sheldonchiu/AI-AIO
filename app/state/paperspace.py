@@ -1,9 +1,9 @@
 from app.utils.constants import *
 from app.utils.functions import *
-import pynecone as pc
-from pynecone.utils import types
+import reflex as rx
+from reflex.utils import types
 from app.app import BaseState
-from pynecone.event import EventHandler
+from reflex.event import EventHandler
 from typing import Optional, Dict, List, Union, Set
 import typing
 from sqlmodel import Field, select
@@ -12,13 +12,13 @@ import asyncio
 import time
 import json
 from collections import OrderedDict
-from pynecone import constants
+from reflex import constants
 import gradient
 
 import logging
 logger = logging.getLogger(__name__)
 
-class Environment(pc.Model, table=True):
+class Environment(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     env_name: str
     env_api_key: str
@@ -74,19 +74,19 @@ class PaperspaceState(BaseState):
     _task_need_wait: Set[str] = set()
     _background_tasks: Set[str] = set()
 
-    @pc.var
+    @rx.var
     def display_retry_count(self) -> bool:
         return self.retry_count > 0
     
-    @pc.var
+    @rx.var
     def retry_count_str(self) -> str:
         return f"{self.retry_str}: {self.retry_count}"
 
-    @pc.var
+    @rx.var
     def is_env_selected(self) -> bool:
         return self.env_type != ""
     
-    @pc.var
+    @rx.var
     def get_env_download_link(self) -> str:
         return f"{constants.API_URL}/download_env/{self.get_token()}"
     
@@ -96,7 +96,7 @@ class PaperspaceState(BaseState):
     def update_envs(self):
         if WEB_HOSTING == False:
             try:
-                with pc.session() as session:
+                with rx.session() as session:
                     self.environments.clear()
                     self.environments.extend(session.exec(select(Environment)).all())
             except:
@@ -203,20 +203,26 @@ class EnvState(ToolState):
         # Update this when adding new components
         self._environment_variables = {}
         if not add:
-            self._add_command(self)
-            self._add_discord(self)
-        self._add_cloudflared(self,add)
-        self._add_image_browser(self,add)
-        self._add_sd_webui(self,add)
-        self._add_sd_comfy(self,add)
-        self._add_sd_volta(self, add)
-        self._add_fastchat(self,add)
-        self._add_textgen(self, add)
-        self._add_minio(self,add)
-        self._add_rclone(self,add)
+            self._add_command()
+            
+        self._add_discord()
+        self._add_cloudflared(add)
+        
+        self._add_sd_webui(add)
+        self._add_sd_comfy(add)
+        self._add_sd_volta(add)
+        self._add_image_browser(add)
+        
+        self._add_fastchat(add)
+        self._add_textgen(add)
+        self._add_flowise(add)
+        self._add_langflow(add)
+        
+        self._add_minio(add)
+        self._add_rclone(add)
         # Start tunnel for all the components if using quick tunnel
         if self._environment_variables['CF_TOKEN'] == "quick":
-            self._add_cloudflared(self,add)
+            self._add_cloudflared(add)
                     
     def _validate_env(self, validate_gpu= False) -> bool:
         if validate_gpu and not any(self.gpu_list.values()):
@@ -267,12 +273,12 @@ class EnvState(ToolState):
         
         if self.power_button == "Stop":
             self._client.notebooks_client.stop(self.env_notebook_id)
-            self._toggle_power(self, False)
+            self._toggle_power(False)
             self.show_progress_for_start_button = False
             self.notebook_url = ""
             return
         
-        if not self._validate_env(self, validate_gpu=True):
+        if not self._validate_env(validate_gpu=True):
             self.show_progress_for_start_button = False
             return
         # do it this way to keep the gpu order, try best gpu first
@@ -283,7 +289,7 @@ class EnvState(ToolState):
         
     async def start_notebook(self) -> Union[None, EventHandler]:
         if "start_notebook" in self._task_to_interrupt:
-            self._clean_exit_task(self, "start_notebook")
+            self._clean_exit_task("start_notebook")
             self.show_progress_for_start_button = False
             self.retry_count = 0
             return
@@ -306,7 +312,7 @@ class EnvState(ToolState):
                 if self.env_type == 'existing':
                     self.env_notebook_id = self._client.start_notebook(self.env_notebook_id, gpu)
                 elif self.env_type == 'new':
-                    self._prepare_env(self)
+                    self._prepare_env()
                     self.env_project_id = self._client.create_project(f"{self.env_name} From Toolbox")
                     self._client.delete_notebook_in_project(self.env_project_id)
                     kwargs = {
@@ -347,13 +353,13 @@ class EnvState(ToolState):
                 return self.start_notebook
         except Exception as e:
             print_msg(self, "Error", str(e))
-            self._toggle_power(self, False)          
-            self._clean_exit_task(self, "start_notebook")
+            self._toggle_power(False)          
+            self._clean_exit_task("start_notebook")
         
     async def check_notebook_status(self) -> Union[None, EventHandler]:    
         
         if "start_notebook" in self._task_to_interrupt:
-            self._clean_exit_task(self, "start_notebook")
+            self._clean_exit_task("start_notebook")
             self.show_progress_for_start_button = False
             self.retry_count = 0
             return
@@ -363,9 +369,9 @@ class EnvState(ToolState):
             
         notebook = self._client.get_notebook_detail(self.env_notebook_id)
         if notebook.state == "Running":
-            self._toggle_power(self, True)
+            self._toggle_power(True)
             if WEB_HOSTING == False and self.env_id != "":
-                with pc.session() as session:
+                with rx.session() as session:
                     try:
                         row_to_edit = session.query(Environment).filter(
                                             Environment.id == self.env_id).first()
@@ -389,9 +395,9 @@ class EnvState(ToolState):
         
         self.show_progress_for_start_button = False
         self.retry_count = 0
-        self._clean_exit_task(self, "start_notebook")
+        self._clean_exit_task("start_notebook")
         
-    @pc.var
+    @rx.var
     def gpu_list_display(self) -> List[List[str]]:
         if self.free_gpu == self.pro_gpu == self.growth_gpu is False:
             return []
@@ -426,13 +432,14 @@ class EnvState(ToolState):
                     self.gpu_available[gpu] = "text-red-500"
             if self.env_project_id != "":
                 try:
-                    self._toggle_power(self, False)
+                    self._toggle_power(False)
                     for notebook in client.get_notobooks_by_project_name(f"{self.env_name} From Toolbox"):             
                         if notebook.state == "Running":
                             self.notebook_url = client.get_notebook_url(notebook)
-                            self._toggle_power(self, True)
+                            self._toggle_power(True)
                             return
                 except:
+                    logger.exception("Failed to get notebook status")
                     print_msg(self, "Error", "Failed to get notebook status")
         except:
             logger.exception("Failed to sync")
@@ -441,7 +448,7 @@ class EnvState(ToolState):
     def load_env(self, selected_id: str):
         if selected_id == "":
             self.env_type = ""
-            self._reset_env(self)
+            self._reset_env()
             return
         
         # use loop instead of sql select to take care of imported environment
@@ -481,7 +488,7 @@ class EnvState(ToolState):
     
     @batch_update_state
     def save_env(self):
-        if not self._validate_env(self):
+        if not self._validate_env():
             return
         
         def create_env():
@@ -511,7 +518,7 @@ class EnvState(ToolState):
                     self.env_id = str(id)
                     self.environments.append(data)
             else:
-                with pc.session() as session:
+                with rx.session() as session:
                     # if env is selected, perfrom update
                     row_to_edit = session.query(Environment).filter(
                         Environment.id == self.env_id).first()
@@ -541,7 +548,7 @@ class EnvState(ToolState):
         print_msg(self, "Success", "Environment saved.")
 
 
-    async def import_env(self, file: List[pc.UploadFile]):
+    async def import_env(self, file: List[rx.UploadFile]):
         """Handle the upload of a file.
 
         Args:
@@ -560,7 +567,7 @@ class EnvState(ToolState):
 
         
     def clear(self):
-        self._reset_env(self)
+        self._reset_env()
 
     def del_env(self, env_id:str):
         logger.info(f"deleting {env_id}")
@@ -575,12 +582,12 @@ class EnvState(ToolState):
                 break
             
         if not WEB_HOSTING:
-            with pc.session() as session:
+            with rx.session() as session:
                 row = session.query(Environment).filter(Environment.id == env_id)
                 row.delete()
                 session.commit()
             
-        # self._reset_env(self, all=True)
+        # self._reset_env(all=True)
         self.env_type = ""
         self.env_id = ""
         print_msg(self, "Success", "Environment deleted")

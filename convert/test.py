@@ -1,5 +1,5 @@
 
-from pynecone.vars import BaseVar
+from reflex.vars import BaseVar
 
 el.Button.add_field(BaseVar(name='data-tabs-target'), default_value=None)
 el.Div.add_field(BaseVar(name='aria-labelledby'), default_value=None)

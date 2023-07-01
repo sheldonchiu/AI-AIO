@@ -1,11 +1,11 @@
 from app.utils.constants import *
 import re
-import pynecone as pc
-from pynecone import el
+import reflex as rx
+from reflex import el
 from typing import Dict, Tuple, List, Optional, ClassVar, Type, Union, Any
-from pynecone.utils import types
+from reflex.utils import types
 from textwrap import dedent
-from pynecone.vars import Var
+from reflex.vars import Var
 from jinja2 import Template
 import json
 
@@ -28,7 +28,7 @@ def add_class_tag(*args: str) -> str:
     return class_name
 
 
-def wrap_card(*content: pc.Component, add_cls: str = None, **kwargs) -> pc.Component:
+def wrap_card(*content: rx.Component, add_cls: str = None, **kwargs) -> rx.Component:
     """
     Wraps content in a card-like component with a white background, gray border, and shadow.
 
@@ -38,7 +38,7 @@ def wrap_card(*content: pc.Component, add_cls: str = None, **kwargs) -> pc.Compo
         **kwargs: Any additional attributes to apply to the card.
 
     Returns:
-        A `pc.Component` instance representing the wrapped card.
+        A `rx.Component` instance representing the wrapped card.
     """
     class_name = "p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
     if add_cls:
@@ -50,7 +50,7 @@ def wrap_card(*content: pc.Component, add_cls: str = None, **kwargs) -> pc.Compo
     )
 
 
-def wrap_row(*content: pc.Component, add_cls: str = None, **kwargs) -> pc.Component:
+def wrap_row(*content: rx.Component, add_cls: str = None, **kwargs) -> rx.Component:
     """
     Wraps content in a row-like component with a flexible width.
 
@@ -60,12 +60,12 @@ def wrap_row(*content: pc.Component, add_cls: str = None, **kwargs) -> pc.Compon
         **kwargs: Any additional attributes to apply to the row.
 
     Returns:
-        A `pc.Component` instance representing the wrapped row.
+        A `rx.Component` instance representing the wrapped row.
     """
     class_name = "min-w-fit pb-3"
     if add_cls:
         class_name = add_class_tag(class_name, add_cls)
-    return pc.wrap(
+    return rx.wrap(
         *content,
         width="100%",
         class_name=class_name,
@@ -75,10 +75,10 @@ def wrap_row(*content: pc.Component, add_cls: str = None, **kwargs) -> pc.Compon
     )
 
 
-def wrap_tooltip(content: pc.Component,
+def wrap_tooltip(content: rx.Component,
                  title: str,
                  tooltip_id: str = None,
-                 ) -> Tuple[pc.Component, pc.Component]:
+                 ) -> Tuple[rx.Component, rx.Component]:
     """
     Creates a button component with a tooltip.
 
@@ -89,7 +89,7 @@ def wrap_tooltip(content: pc.Component,
         **button_kwargs: Additional attributes to apply to the button.
 
     Returns:
-        A tuple of two `pc.Component` instances: the button and the tooltip.
+        A tuple of two `rx.Component` instances: the button and the tooltip.
     """
     tooltip_id = tooltip_id if tooltip_id else f"tooltip-{title.replace(' ', '-').lower()}"
     tooltip = el.div(
@@ -107,11 +107,11 @@ def wrap_tooltip(content: pc.Component,
 
 
 def component_with_title(title: str,
-                         component: pc.Component,
-                         *component_args: pc.Component,
+                         component: rx.Component,
+                         *component_args: rx.Component,
                          input_kwargs: Dict = {},
                          vstack_kwargs: Dict = {},
-                         add_cls: str = "") -> pc.Component:
+                         add_cls: str = "") -> rx.Component:
     """
     Wraps a component in a vertical stack with a title.
 
@@ -124,10 +124,10 @@ def component_with_title(title: str,
         add_cls: Optional additional class name(s) to apply to the wrapped component.
 
     Returns:
-        A `pc.Component` instance representing the wrapped component with a title.
+        A `rx.Component` instance representing the wrapped component with a title.
     """
-    return pc.vstack(
-        pc.text(title, class_name=add_class_tag(
+    return rx.vstack(
+        rx.text(title, class_name=add_class_tag(
             TEXT_COLOR_CLASS, "text-sm")),
         # debounce_input(
         component(
@@ -142,7 +142,7 @@ def component_with_title(title: str,
     )
 
 
-def custom_code_block(content: pc.Component, id: str = None) -> pc.Component:
+def custom_code_block(content: rx.Component, id: str = None) -> rx.Component:
     """
     Creates a custom code block component.
 
@@ -150,10 +150,10 @@ def custom_code_block(content: pc.Component, id: str = None) -> pc.Component:
         content: The content to display in the code block.
 
     Returns:
-        A `pc.Component` instance representing the custom code block.
+        A `rx.Component` instance representing the custom code block.
     """
 
-    return pc.code_block(
+    return rx.code_block(
         content,
         id=id,
         class_name="overflow-auto max-h-96 pt-2",
@@ -164,7 +164,7 @@ def custom_code_block(content: pc.Component, id: str = None) -> pc.Component:
     )
 
 
-class StateUpdater(pc.Component):
+class StateUpdater(rx.Component):
     """A component that defines a hook for updating state variables in a React component.
 
     Attributes:
@@ -216,7 +216,7 @@ class StateUpdater(pc.Component):
                                                      )
 
 
-class RemoteExecuteHook(pc.Component):
+class RemoteExecuteHook(rx.Component):
     """A component that defines a hook for updating state variables in a React component.
 
     Attributes:
@@ -231,9 +231,9 @@ class RemoteExecuteHook(pc.Component):
     is_default = True
 
     task_progress: Optional[Var]
-    base_state: Optional[Type[pc.State]]
+    base_state: Optional[Type[rx.State]]
 
-    def __init__(self, task_progress: Var, base_state: Type[pc.State], *args, **kwargs):
+    def __init__(self, task_progress: Var, base_state: Type[rx.State], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.task_progress = task_progress
         self.base_state = base_state
@@ -296,7 +296,7 @@ class RemoteExecuteHook(pc.Component):
                                                  alert_msg=self.base_state.alert_msg.full_name)
 
 
-def prepare_tab_button(title, tab_id, selected=False) -> pc.Component:
+def prepare_tab_button(title, tab_id, selected=False) -> rx.Component:
     """
     Creates a tab button component that can be used with a tab control.
 
@@ -305,7 +305,7 @@ def prepare_tab_button(title, tab_id, selected=False) -> pc.Component:
         tab_id (str): The ID of the corresponding tab panel that this button controls.
 
     Returns:
-        pc.Component: A tab button component that can be added to the page.
+        rx.Component: A tab button component that can be added to the page.
     """
     output = el.li(
         el.button(
@@ -327,16 +327,16 @@ def prepare_tab_button(title, tab_id, selected=False) -> pc.Component:
     return output
 
 
-def prepare_tab_content(content, tab_id) -> pc.Component:
+def prepare_tab_content(content, tab_id) -> rx.Component:
     """
     Creates a tab content component that can be used with a tab control.
 
     Args:
-        content (pc.Component): The content to display inside the tab panel.
+        content (rx.Component): The content to display inside the tab panel.
         tab_id (str): The ID of the tab panel.
 
     Returns:
-        pc.Component: A tab content component that can be added to the page.
+        rx.Component: A tab content component that can be added to the page.
     """
     output = el.div(
         content,
@@ -365,12 +365,12 @@ def get_ref_value_fn(refs: List[str] = None, prefix=None) -> str:
     return BaseVar(name=func, is_local=True, is_string=False)
 
 
-class SpecialButton(pc.Button):
+class SpecialButton(rx.Button):
     # {execure_remote_command}
     special_on_click: str = None
 
     @classmethod
-    def create(cls, *args, special_on_click: str = None, **kwargs) -> pc.Component:
+    def create(cls, *args, special_on_click: str = None, **kwargs) -> rx.Component:
         """Create a Bare component, with no tag.
 
         Args:
@@ -417,7 +417,7 @@ class SpecialButton(pc.Button):
 
 specialButton = SpecialButton.create
 
-# class MultiSelect(pc.Component):
+# class MultiSelect(rx.Component):
 #     library = "react-select"
 #     tag = "MultiSelect"
 #     is_default = True

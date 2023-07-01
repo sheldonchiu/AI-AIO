@@ -2,9 +2,9 @@
 import autopep8
 import string
 import itertools
-from pynecone import el
-from pynecone.el.constants.pynecone import attr_to_prop
-from pynecone.el.constants.html import ELEMENTS
+from reflex import el
+from reflex.el.constants.reflex import attr_to_prop
+from reflex.el.constants.html import ELEMENTS
 from bs4 import BeautifulSoup
 import argparse
 
@@ -18,7 +18,7 @@ def generate_var_name():
         for combination in itertools.product(letters, repeat=length):
             # Convert combination to string and yield as next value
             output = "".join(combination)
-            # check if generated variable name is defined in pynecone elements
+            # check if generated variable name is defined in reflex elements
             if output not in ELEMENTS:
                 yield "".join(combination)
 var_generator = generate_var_name()
@@ -30,9 +30,9 @@ def process_tag(tag, output, list_of_elements):
         props = ""
         missing_attr_temp = {}
         for attr in tag.attrs:
-            # convert html tag to possible pynecone tag
+            # convert html tag to possible reflex tag
             py_attr = attr_to_prop(attr)
-            # check if attrs is already defined in pynecone
+            # check if attrs is already defined in reflex
             if not hasattr(getattr(el, tag.name)(), py_attr):
                 missing_attr_temp[attr] = tag[attr]
                 continue
@@ -63,8 +63,8 @@ def process_tag(tag, output, list_of_elements):
         if tag.name != '[document]':
             output += "),\n"
     else:
-        # use raw html if tag is not defined in pynecone
-        output += f"pc.html('''{tag}'''),\n"
+        # use raw html if tag is not defined in reflex
+        output += f"rx.html('''{tag}'''),\n"
 
     # Return the updated output string
     return output
@@ -74,7 +74,7 @@ def main(args):
         html_content = f.read()
     soup = BeautifulSoup(html_content, 'html.parser')
     imports = '''
-    from pynecone.vars import BaseVar
+    from reflex.vars import BaseVar
 
     '''
     output = imports
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, required=True, help="path to html file")
     parser.add_argument("--output", type=str, default="output.py", help="path to output file")
-    parser.add_argument("--skip_element", type=str, default="", help="list of elements to remain in html and embed using pc.html, separate by comma")
+    parser.add_argument("--skip_element", type=str, default="", help="list of elements to remain in html and embed using rx.html, separate by comma")
     args = parser.parse_args()
 
     main(args)
