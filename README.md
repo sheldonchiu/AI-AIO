@@ -38,8 +38,8 @@
 ### 🐍 Installation via Python package manager
 ```bash
 pip install -r requirements.txt
-pc init
-pc run --env prod
+reflex init
+reflex run --env prod
 ```
 
 ### 📦 Installation via pre-built Docker container
