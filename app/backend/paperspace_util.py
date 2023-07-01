@@ -38,8 +38,16 @@ class Paperspace_client():
         for n in notebooks:
             self.notebooks_client.delete(id=n.id)
 
-
     def get_notobooks_by_project_id(self, project_id):
+        notebooks = [n for n in self.notebooks_client.list(tags=[]) if n.project_handle==project_id]
+        return notebooks
+
+    def get_notobooks_by_project_name(self, project_name):
+        project_list = self.projects_client.list()
+        for project in project_list:
+            if project.name == project_name:
+                project_id = project.id
+                break
         notebooks = [n for n in self.notebooks_client.list(tags=[]) if n.project_handle==project_id]
         return notebooks
     

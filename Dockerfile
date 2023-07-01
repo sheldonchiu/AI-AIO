@@ -1,6 +1,6 @@
 FROM python:3.11-slim as base
 
-RUN adduser --disabled-password pynecone
+RUN adduser --disabled-password reflex
 
 
 FROM base as build
@@ -35,17 +35,17 @@ FROM runtime as init
 WORKDIR /app
 ENV BUN_INSTALL="/app/.bun"
 COPY --from=build /app/ /app/
-RUN pc init
+RUN reflex init
 
 
 FROM runtime
 
-COPY --chown=pynecone --from=init /app/ /app/
-USER pynecone
+COPY --chown=reflex --from=init /app/ /app/
+USER reflex
 WORKDIR /app
 
 ENV BUN_PATH="/app/.bun/bin/bun"
-CMD ["pc","run" , "--env", "prod"]
+CMD ["reflex","run" , "--env", "prod"]
 
 
 EXPOSE 3000

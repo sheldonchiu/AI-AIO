@@ -56,6 +56,7 @@ async def send_command(cls, command: str):
     data = {'command': command}
     headers = {'Content-Type': 'application/json',
                'Accept': 'application/json'}
+    logger.info(f"Sending command: {command}")
     async with aiohttp.ClientSession() as session:
         async with session.post(url, auth=auth, headers=headers, data=json.dumps(data)) as response:
             if response.status == 200:
@@ -89,6 +90,7 @@ async def run_background_task(cls, command: str):
     data = {'command': command}
     headers = {'Content-Type': 'application/json',
                'Accept': 'application/json'}
+    logger.info(f"Running background task: {command}")
     async with aiohttp.ClientSession() as session:
         async with session.post(url, auth=auth, headers=headers, data=json.dumps(data)) as response:
             if response.status == 200:
@@ -129,25 +131,6 @@ async def read_log(cls, log_path) -> tuple:
         logger.exception(f"Failed to read log {log_path}")
         print_msg(cls, "Error", "Unknown error")
         return "Error", None
-    
-def convert_to_js_id(s: str):
-    """
-    Convert a string into a valid JavaScript id.
-    """
-    hash = hashlib.md5(s.encode('utf-8')).hexdigest()
-    # Replace all non-alphanumeric characters with underscores
-    s = re.sub(r'\W+', '_', s)
-    
-    # Remove leading and trailing underscores
-    s = s.strip('_')
-    
-    # Ensure that the id starts with a letter
-    if not s[0].isalpha():
-        s = 'id_' + s
-        
-    s += '_' + hash[:4]
-    
-    return s
 
 def decode_and_insert_env(cls, key, value):
     # Split the string by "__" to separate the parts
@@ -172,10 +155,6 @@ def decode_and_insert_env(cls, key, value):
                 logger.error(f"Failed to decode and insert env {key} {value}")
                 return
     
-    # If there are more than three parts, assume the first part is "ref_" followed by the page name,
-    # and return the rest of the parts as a list
-    # elif len(parts) > 3:
-    #     return [part for part in parts[2:]]
     
 def batch_update_state(func):
     # a decorator to load kwargs to env
@@ -205,15 +184,7 @@ def batch_update_state(func):
     wrapper.__signature__ = new_signature
     functools.update_wrapper(wrapper, func)
     return wrapper
-        
-
-# def convert_to_js_dict(key_list, value: str, prefix:str=""):
-#     output = []
-#     for key in key_list:
-#         if key.type_ is Dict:
-            
-#     return '{' + ','.join([f"'{key}': ref_{prefix}{convert_to_js_id(key)}.current.{value}" for key in key_list]) + '}'
-
+    
 def update_checkbox_selecion(var: Dict[str, bool], args: Dict[str, str]):
     for selection in var.keys():
         if selection in args:

@@ -32,6 +32,9 @@ export const getRefValues = (refs_to_update=[], prefix=null) => {
           case "checkbox":
             value = ref.current.checked;
             break;
+          case "radio":
+            value = ref.current.checked;
+            break;
           case "select-multiple":
             value = Array.from(ref.current.selectedOptions, (option) => option.value);
             break;

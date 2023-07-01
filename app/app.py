@@ -1,6 +1,6 @@
-"""Welcome to Pynecone! This file outlines the steps to create a basic app."""
-import pynecone as pc
-from pynecone import el
+"""Welcome to reflex! This file outlines the steps to create a basic app."""
+import reflex as rx
+from reflex import el
 from app.utils.constants import *
 
 from redis import Redis
@@ -11,7 +11,7 @@ log_level = os.getenv("APP_LOG_LEVEL", "INFO")
 logging.basicConfig(level=log_level,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-class BaseState(pc.State):
+class BaseState(rx.State):
     show_alert: bool = False
     alert_header: str = ""
     alert_msg: str = ""
@@ -21,24 +21,24 @@ from app.utils.components import *
 from .state import PaperspaceState, EnvState, ControlPanelState
 from .html import create_navbar, get_paperpace_panel, get_control_panel, prepare_footer
 
-def prepare_alert() -> pc.Component:
+def prepare_alert() -> rx.Component:
     """
     Prepares an alert dialog component with header, body, and footer.
 
     Returns:
-        A `pc.Component` instance representing the alert dialog.
+        A `rx.Component` instance representing the alert dialog.
     """
-    return pc.alert_dialog(
-        pc.alert_dialog_overlay(
-            pc.alert_dialog_content(
-                pc.alert_dialog_header(PaperspaceState.alert_header,
+    return rx.alert_dialog(
+        rx.alert_dialog_overlay(
+            rx.alert_dialog_content(
+                rx.alert_dialog_header(PaperspaceState.alert_header,
                                         class_name=HEADING_CLASS),
-                pc.alert_dialog_body(
+                rx.alert_dialog_body(
                     PaperspaceState.alert_msg,
                     class_name = add_class_tag(TEXT_COLOR_CLASS, "whitespace-pre-line")
                 ),
-                pc.alert_dialog_footer(
-                    pc.button(
+                rx.alert_dialog_footer(
+                    rx.button(
                         "Close",
                         on_click=PaperspaceState.set_show_alert(False),
                         class_name = NORMAL_BUTTON_CLS
@@ -51,7 +51,7 @@ def prepare_alert() -> pc.Component:
         close_on_overlay_click=True,
     )
 
-def index() -> pc.Component:
+def index() -> rx.Component:
     return el.div(
         # RemoteExecuteHook.create(task_progress=ControlPanelState.task_in_progress, base_state = BaseState),
         StateUpdater.create(vars_to_update = {key: value for key, value in EnvState.vars.items() if key.startswith(prefix_to_watch)},
@@ -100,7 +100,7 @@ script_tag = el.script(
     src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.4/flowbite.min.js")
 
 
-app = pc.App(state=BaseState, style=style, stylesheets=stylesheets)
+app = rx.App(state=BaseState, style=style, stylesheets=stylesheets)
 
 from app.backend.helpers import download_json
 app.api.add_api_route("/download_env/{token}", download_json)

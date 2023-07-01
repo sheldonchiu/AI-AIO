@@ -4,7 +4,7 @@ from app.utils.functions import *
 from .paperspace import EnvState
 from typing import Dict
 
-from pynecone.event import EventHandler
+from reflex.event import EventHandler
 
 import logging
 logger = logging.getLogger(__name__)
@@ -24,6 +24,8 @@ class ControlPanelState(EnvState):
         "compress_folder": False,
         "monitor": False,
         "shell": False,
+        "sd_download": False,
+        "llm_download": False,
     }
     task_progress: Dict[str, str] = {
         "install": "",
@@ -31,13 +33,14 @@ class ControlPanelState(EnvState):
         "compress": "",
         "monitor": "",
         "shell": "",
+        "sd_download": "",
+        "llm_download": "",
     }
     monitor_content: Dict[str, str] = {
         "component": "",
         "process": "",
         "gpu_usage": "",
     }
-    compress_progress: str = ""
     huggingface_step: str = "select_mode"
     huggingface_mode: str = ""
     huggingface_token: str = ""
@@ -87,7 +90,7 @@ class ControlPanelState(EnvState):
     
     @batch_update_state
     async def shell_execute(self):
-        result = await self._execute(self, self.shell_command, skip_msg=True)
+        result = await self._execute(self.shell_command, skip_msg=True)
         self.shell_result = result
         clean_exit_task(self, "shell")
     
@@ -118,16 +121,67 @@ class ControlPanelState(EnvState):
             env += f" HF_TARGET_FILES={self.huggingface_target_files}"
         command = f"{env} bash /notebooks/huggingface/main.sh"
         # TODO change to async upload
-        await self._execute(self, command, "Uploaded successfully.", "Failed to upload.\n {}")
+        await self._execute(command, "Uploaded successfully.", "Failed to upload.\n {}")
         clean_exit_task(self, "huggingface_upload")
 
     async def upgrade_toolbox(self):
-        await self._execute(self, "cd /notebooks && git pull", "Toolbox upgraded successfully.", "Toolbox upgrade failed.\n {}")
+        await self._execute("cd /notebooks && git pull", "Toolbox upgraded successfully.", "Toolbox upgrade failed.\n {}")
         clean_exit_task(self, "upgrade_toolbox")
     
     async def get_storage_size(self):
-        await self._execute(self, "du -sh /storage", "Storage Usage: {}", "Failed to get storage size.\n {}")
+        await self._execute("du -sh /storage", "Storage Usage: {}", "Failed to get storage size.\n {}")
         clean_exit_task(self, "get_storage_size")
+        
+    @batch_update_state
+    async def download_model(self, name):
+        log_path = f"/tmp/log/ui_{name}.log"
+        stages = ["### Setting up Model Download ###", 
+                  "### Starting Model Download ###", 
+                  "### Finished Model Download ###"]
+            
+        if name in self._background_tasks:
+            await asyncio.sleep(REFRESH_RATE)
+            state, result = await read_log(self, log_path)
+            if state == "Error":
+                clean_exit_task(self, name)
+                return
+            if state != "":
+                try:
+                    progress_index = stages.index(state)
+                    progress = int((progress_index + 1)/len(stages) * 100)
+                except:
+                    print_msg(self, "Error", f"Unknown error.\n")
+                    clean_exit_task(self, name)
+                    return
+                
+                if progress == 100:
+                    print_msg(self, "Success", f"Finish Downloading model.\n")
+                    clean_exit_task(self, name)
+                    return
+            self.task_progress[name] = result
+            return EventHandler(fn=self.download_model.func)(name)
+        else:
+            self._environment_variables = {}
+            if name == "sd_download":
+                self._add_t2i_models()
+                script = f"/notebooks/utils/sd_model_download/main.sh"
+            elif name == "llm_download":
+                self._add_llm_models()
+                script = f"/notebooks/utils/llm_model_download.sh"
+            env = ""
+            for key, value in self._environment_variables.items():
+                env+= f"{key}={value} "
+            command = f"{env} bash {script} > {log_path} 2>&1 &"
+            try:
+                result = await run_background_task(self, command)
+                if result["code"] == -1:
+                    print_msg(self, "Error", f"Failed to run {name}.\n {result['error']}")
+            except:
+                logger.exception(f"Failed to run {name}")
+                print_msg(self, "Error", "Unknown error")
+                
+            self._background_tasks.add(name)
+            return EventHandler(fn=self.download_model.func)(name)
     
     async def monitor(self):         
         if self.extra_command_url == "":
@@ -142,11 +196,11 @@ class ControlPanelState(EnvState):
         if "monitor" in self._task_need_wait:
             await asyncio.sleep(PAPERSPACE_MONITOR_INTERVAL)
             
-        result = await self._execute(self, "nvidia-smi", skip_msg=True)
+        result = await self._execute("nvidia-smi", skip_msg=True)
         self.monitor_content['gpu_usage'] = result
-        result = await self._execute(self, "ps -ef", skip_msg=True)
+        result = await self._execute("ps -ef", skip_msg=True)
         self.monitor_content['process'] = result
-        result = await self._execute(self, "python /notebooks/status_check.py", skip_msg=True)
+        result = await self._execute("python /notebooks/status_check.py", skip_msg=True)
         self.monitor_content['component'] = result
         
         self._task_need_wait.add("monitor")
@@ -154,14 +208,14 @@ class ControlPanelState(EnvState):
     
     @batch_update_state
     async def compress_folder(self):
-        log_path = "/tmp/ui_compress.log"
+        log_path = "/tmp/log/ui_compress.log"
         stages = ["### Command received ###", "### Compressing ###", "### Done ###"]
         
         def exit_cleanup():
-            self.compress_progress = ""
-            clean_exit_task(self, "compress_folder")
+            self.task_progress['compress'] = ""
+            clean_exit_task(self, "compress")
             
-        if "compress_folder" in self._background_tasks:
+        if "compress" in self._background_tasks:
             await asyncio.sleep(REFRESH_RATE)
             state, result = await read_log(self, log_path)
             if state == "Error":
@@ -179,7 +233,7 @@ class ControlPanelState(EnvState):
                 print_msg(self, "Success", f"Compress successfully.\n {result}")
                 exit_cleanup()
                 return
-            self.compress_progress = f"Progress: {progress}% Stage: {state.replace('#','').strip()}"
+            self.task_progress['compress'] = f"Progress: {progress}% Stage: {state.replace('#','').strip()}"
             return self.compress_folder
         elif self.zip_target_path == "":
             print_msg(self, "Error", "Target path cannot be empty.")
@@ -194,8 +248,8 @@ class ControlPanelState(EnvState):
             except:
                 logger.exception("Failed to compress folder")
                 print_msg(self, "Error", "Unknown error")
-            # await self._execute(self, command, "Copressed successfully. Path to zip file: {}", "Failed to compress folder.\n {}")
-            self._background_tasks.add("compress_folder")
+            # await self._execute(command, "Copressed successfully. Path to zip file: {}", "Failed to compress folder.\n {}")
+            self._background_tasks.add("compress")
             return self.compress_folder
     
     # TODO: ask for comfirmation if action is start and process is already running
@@ -203,8 +257,8 @@ class ControlPanelState(EnvState):
     async def component_action(self, name, action):
         result = ""
 
-        log_path = f"/tmp/ui_{name}_{action}.log"  
-        # temp fix for a pynecone issue
+        log_path = f"/tmp/log/ui_{name}_{action}.log"  
+        # temp fix for a reflex issue
         # name = name.replace('"', ''); action = action.replace('"', '')    
         stages = ["### Command received ###", *getattr(self, f"{name}_substage")[action], "### Done ###"]
         status = getattr(self, f"add_{name}_enable", None)
@@ -243,8 +297,8 @@ class ControlPanelState(EnvState):
             setattr(self, f"{name}_action_log", result)
             return EventHandler(fn=self.component_action.func)(name, action)
         
-        elif len(self._background_tasks) > 0:
-            print_msg(self, "Error", "Another task is running, please retry later.")
+        elif f"{name}_{action}" in self._background_tasks:
+            print_msg(self, "Error", "Already running")
             self.set_action_status.fn(self, name, False)
         elif status is False and action != "stop":
             print_msg(self, "Error", f"Please enable {name} first.")
@@ -256,9 +310,9 @@ class ControlPanelState(EnvState):
             print_msg(self, "INFO", "Cloudflare with token does not support stop and restart, all configurations can be done on dashboard.")
             self.set_action_status.fn(self, name, False)
         else:
-            check_env = self.event_handlers.get(f"_check_env_{name}", None)
+            check_env = getattr(self, f"_check_env_{name}", None)
             if check_env:
-                result = check_env(self,add=True)
+                result = check_env(add=True)
                 if len(result) > 0:
                     msg = ""
                     for v in result:
@@ -268,7 +322,7 @@ class ControlPanelState(EnvState):
                     return
             # prepare env
             if name == 'cloudflared' and action == 'reload':
-                self._prepare_env(self, add=True)
+                self._prepare_env(add=True)
                 script = "/notebooks/cloudflare_reload.sh"
             else:                
                 fn = getattr(self, f"_add_{name}", None)
@@ -278,7 +332,7 @@ class ControlPanelState(EnvState):
                     return
                 else:
                     self._environment_variables = {}
-                    fn(self, add=True)
+                    fn(add=True)
                     script = f"/notebooks/{name}/control.sh"
             env = ""
             for key, value in self._environment_variables.items():
@@ -311,17 +365,17 @@ class ControlPanelState(EnvState):
                     msg += f"{v} is empty\n"
                 print_msg(self, "Error", msg)
             else:
-                self._prepare_env(self, add=True)
+                self._prepare_env(add=True)
                 env = ""
                 for key, value in self._environment_variables.items():
                     env+= f"{key}={value} "
                 command = f"{env} bash /notebooks/entry.sh"
-                await self._execute(self, command, "Components installed successfully.", "Components installation failed.\n {}")
+                await self._execute(command, "Components installed successfully.", "Components installation failed.\n {}")
         
         self.task_in_progress['install_components'] = False
         
     async def check_process_status(self, name):
         command = f"kill -0 $(cat /tmp/{name}.pid)"
-        await self._execute(self, command, "Running", "Not running\n {}")
+        await self._execute(command, "Running", "Not running\n {}")
         self.set_action_status.fn(self, name, False)
                 

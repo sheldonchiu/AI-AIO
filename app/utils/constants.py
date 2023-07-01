@@ -1,7 +1,7 @@
 import os
 from enum import Enum
 from jinja2 import Template
-from pynecone.vars import BaseVar
+from reflex.vars import BaseVar
 
 bool_t = lambda x: x.lower() in ['true', 'yes', '1']
 
@@ -20,10 +20,10 @@ GPU_TIER = [("Free Tier", FREE_GPU), ("Pro Tier", PRO_FREE_GPU +
                                       PRO_GPU), ("Growth Tier", GROWTH_FREE_GPU + GROWTH_GPU)]
 ALL_GPU = FREE_GPU + PRO_GPU + PRO_FREE_GPU + GROWTH_GPU + GROWTH_FREE_GPU
 
-REFRESH_RATE = 1
+REFRESH_RATE = 10 if WEB_HOSTING else 1
 PAPERSPACE_START_RATE = 5
 PAPERSPACE_TIMEOUT = 60 * 30    # 30 minutes
-PAPERSPACE_DEFAULT_COMMAND = "bash entry.sh >> /tmp/run.log & jupyter lab --allow-root --ip=0.0.0.0 --no-browser --ServerApp.trust_xheaders=True --ServerApp.disable_check_xsrf=False --ServerApp.allow_remote_access=True --ServerApp.allow_origin='*' --ServerApp.allow_credentials=True"
+PAPERSPACE_DEFAULT_COMMAND = "bash entry.sh >> /tmp/log/run.log & jupyter lab --allow-root --ip=0.0.0.0 --no-browser --ServerApp.trust_xheaders=True --ServerApp.disable_check_xsrf=False --ServerApp.allow_remote_access=True --ServerApp.allow_origin='*' --ServerApp.allow_credentials=True"
 PAPERSPACE_DEFAULT_CONTAINER = "paperspace/gradient-base:pt112-tf29-jax0317-py39-20230125"
 
 BUTTON_TEXT_CLS = "text-gray-900 dark:text-white"
@@ -56,10 +56,14 @@ STAGE_BASE_TEMPLATE = Template('''
 {% endif %}
 ### Starting {{ title }} ###
 ''')
+LLM_MODELS = ["Vicuna 13B v1.3", "Guanaco 13B", "Long Chat 13B", "WizardLM-13B"]
+LLM_MAPPING = {
+    "Vicuna 13B v1.3": "TheBloke/vicuna-13b-v1.3.0-GPTQ",
+    "Guanaco 13B": "TheBloke/guanaco-13B-GPTQ",
+    "Long Chat 13B": "TheBloke/LongChat-13B-GPTQ",
+    "WizardLM-13B": "TheBloke/WizardLM-13B-V1.0-Uncensored-GPTQ"
+}
 FASTCHAT_MODELS = ["vicuna-13b", "vicuna-7b", "chatglm-6b"]
-TEXTGEN_MODELS = [ "vicuna-13B-1.1",
-                   "stable-vicuna-13B"
-                ]
 
 class Page(Enum):
     main = 0
