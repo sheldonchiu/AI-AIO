@@ -651,7 +651,7 @@ def extra_enable_textgen_api(add=False) -> rx.component:
                         ),
         ),
         component_with_title(
-            "Model",
+            "Model(Only Effective when OPENAI Style API is enabled)",
             rx.radio_group,
             rx.hstack(
                 *[

@@ -7,6 +7,5 @@
 .web
 __pycache__/
 node_modules/
-pynecone.db
 record.md
 reflex.db
