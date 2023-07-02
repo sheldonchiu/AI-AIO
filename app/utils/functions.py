@@ -126,11 +126,11 @@ async def read_log(cls, log_path) -> tuple:
             return target, result['output']
         else:
             print_msg(cls, "Error", f"Failed to read log\n {result['error']}")
-            return "Error", None
+            return "### ERROR ###", None
     except:
         logger.exception(f"Failed to read log {log_path}")
         print_msg(cls, "Error", "Unknown error")
-        return "Error", None
+        return "### ERROR ###", None
 
 def decode_and_insert_env(cls, key, value):
     # Split the string by "__" to separate the parts

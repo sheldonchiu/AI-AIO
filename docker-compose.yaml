@@ -1,28 +1,20 @@
 version: "3.8"
 services:
   paperspace:
-    image: sheldonxxx/paperspace:latest
+    image: sheldonxxxx/paperspace-ai-aio:main-v0.2.1
     environment:
       - BUN_PATH=/app/.bun/bin/bun
-      # - API_URL=
-      # - REDIS_URL=redis:6379
+      - API_URL=
+      - REDIS_URL=redis:6379
+      - WEB_HOSTING=1
+      - APP_LOG_LEVEL=ERROR
     restart: unless-stopped
     ports:
       - 8000:8000
-    networks:
-      - paperspace
-    entrypoint: pc run
-    # entrypoint: pc run --env prod --backend-only
+    entrypoint: reflex run --env prod --backend-only
     
   redis:
     image: redis:latest
     restart: unless-stopped
-    networks:
-      - paperspace
     ports:
       - 6379:6379
-
-
-networks:
-    paperspace:
-      name: paperspace

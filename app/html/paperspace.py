@@ -188,7 +188,7 @@ def extra_options(add=False) -> rx.component:
     utilities += [extra_cloudflare(add),
                   extra_minio(add),
                   extra_rclone(add),
-                  extra_discord(),
+                  extra_discord(add),
                 ]
     sd = [
         extra_sd_webui(add),

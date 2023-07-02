@@ -325,13 +325,6 @@ def extra_sd_webui(add=False) -> rx.component:
                             ),
             ),
             wrap_row(
-                rx.checkbox("Enable Xformers",
-                            id=f"{prefix}extra_sd_webui_xformers",
-                            class_name=add_class_tag(
-                                TEXT_COLOR_CLASS, "text-sm"),
-                            ),
-            ),
-            wrap_row(
                 component_with_title("Gradio Auth (Username:Password)",
                                      rx.input,
                                      input_kwargs={

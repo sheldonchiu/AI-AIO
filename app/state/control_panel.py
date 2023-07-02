@@ -10,7 +10,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 def clean_exit_task(cls, name):
-    cls.task_in_progress[name] = False
+    if name in cls.task_in_progress:
+        cls.task_in_progress[name] = False
     cls._task_to_interrupt.discard(name)
     cls._background_tasks.discard(name)
     cls._task_need_wait.discard(name)
@@ -132,33 +133,42 @@ class ControlPanelState(EnvState):
         await self._execute("du -sh /storage", "Storage Usage: {}", "Failed to get storage size.\n {}")
         clean_exit_task(self, "get_storage_size")
         
+        
+    async def _process_log(self, stages, name, log_path, success_msg):
+        await asyncio.sleep(REFRESH_RATE)
+        state, result = await read_log(self, log_path)
+        if state == "### ERROR ###":
+            print_msg(self, "Error", "Unknown error")
+            clean_exit_task(self, name)
+            return False, -1, state, result
+        if state != "":
+            try:
+                progress = None
+                progress_index = stages.index(state)
+                progress = int((progress_index + 1)/len(stages) * 100)
+            except:
+                logger.info("Unknown state: {}".format(state))
+                return True, -1, state, result
+            if progress == 100:
+                print_msg(self, "Success", success_msg.format(result))
+                clean_exit_task(self, name)
+                return False, progress, state, result    
+        return True, progress, state, result
+    
+        
     @batch_update_state
     async def download_model(self, name):
         log_path = f"/tmp/log/ui_{name}.log"
         stages = ["### Setting up Model Download ###", 
-                  "### Starting Model Download ###", 
+                  "### Downloading Models ###", 
                   "### Finished Model Download ###"]
             
         if name in self._background_tasks:
-            await asyncio.sleep(REFRESH_RATE)
-            state, result = await read_log(self, log_path)
-            if state == "Error":
-                clean_exit_task(self, name)
-                return
-            if state != "":
-                try:
-                    progress_index = stages.index(state)
-                    progress = int((progress_index + 1)/len(stages) * 100)
-                except:
-                    print_msg(self, "Error", f"Unknown error.\n")
-                    clean_exit_task(self, name)
-                    return
-                
-                if progress == 100:
-                    print_msg(self, "Success", f"Finish Downloading model.\n")
-                    clean_exit_task(self, name)
-                    return
+            ret, _, _, result  = await self._process_log(stages, name, log_path, "Finish Downloading model.\n")
             self.task_progress[name] = result
+            # Either error or finish, end loop
+            if ret == False:
+                return
             return EventHandler(fn=self.download_model.func)(name)
         else:
             self._environment_variables = {}
@@ -208,36 +218,20 @@ class ControlPanelState(EnvState):
     
     @batch_update_state
     async def compress_folder(self):
+        name = "compress"
         log_path = "/tmp/log/ui_compress.log"
         stages = ["### Command received ###", "### Compressing ###", "### Done ###"]
-        
-        def exit_cleanup():
-            self.task_progress['compress'] = ""
-            clean_exit_task(self, "compress")
             
-        if "compress" in self._background_tasks:
-            await asyncio.sleep(REFRESH_RATE)
-            state, result = await read_log(self, log_path)
-            if state == "Error":
-                exit_cleanup()
-                return
-            try:
-                progress_index = stages.index(state)
-                progress = int((progress_index + 1)/len(stages) * 100)
-            except:
-                print_msg(self, "Error", f"Unknown error.\n {result}")
-                exit_cleanup()
-                return
-            
-            if progress == 100:
-                print_msg(self, "Success", f"Compress successfully.\n {result}")
-                exit_cleanup()
-                return
+        if name in self._background_tasks:
+            ret, progress, state, result = await self._process_log(stages, name, log_path, "Compress successfully.\n {}")
             self.task_progress['compress'] = f"Progress: {progress}% Stage: {state.replace('#','').strip()}"
+            # Either error or finish, end loop
+            if ret == False:
+                return
             return self.compress_folder
         elif self.zip_target_path == "":
             print_msg(self, "Error", "Target path cannot be empty.")
-            exit_cleanup()
+            clean_exit_task(self, "compress")
             return
         else:
             command = f"ZIP_TARGET_PATH={self.zip_target_path} bash /notebooks/utils/compress.sh > {log_path} 2>&1 &"
@@ -282,11 +276,7 @@ class ControlPanelState(EnvState):
             except:
                 setattr(self, f"{name}_action_progress",  "Progress: Unknown Stage: Unknown")
                 setattr(self, f"{name}_action_log", result)
-                # Unknown error
-                print_msg(self, "Error", "Unknown error while reading log")
-                exit_cleanup()
-                return
-            if progress and progress == 100:
+            if progress == 100:
                 msg = f"Successfully completed {action} {name}."
                 if action == 'start':
                     msg += "\nPlease reload cloudflare if using it without token"
