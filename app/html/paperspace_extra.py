@@ -221,15 +221,26 @@ def extra_rclone(add=False) -> rx.component:
                                      ),
                 add_cls="w-full",
                 # wrap="wrap",
-                        spacing="1em",
+                spacing="1em",
             ),
-            component_with_title("Local path (Optional)",
+            component_with_title("Local path (Default to /notebooks)",
                                  rx.input,
                                  input_kwargs={
                                      "id": f"{prefix}extra_rclone_serve_path"},
                                  vstack_kwargs={"class_name": "w-full",
                                                 "align_items": "start"}
                                  ),
+            wrap_row(
+                component_with_title("Extra Args (Optional)",
+                                     rx.input,
+                                     input_kwargs={
+                                         "id": f"{prefix}extra_rclone_args"},
+                                     vstack_kwargs={"class_name": "w-full",
+                                                    "align_items": "start"}
+                                     ),
+                add_cls="w-full",
+                spacing="1em",
+            ),
             rx.cond(
                 add,
                 rx.cond(
@@ -329,11 +340,15 @@ def extra_sd_webui(add=False) -> rx.component:
                                      rx.input,
                                      input_kwargs={
                                          "id": f"{prefix}extra_sd_webui_auth"},
-                                     vstack_kwargs={
-                                         "align_items": "start"}
+                                     vstack_kwargs={"align_items": "start"}
                                      ),
-                # wrap="wrap",
-                # spacing="1em"
+                component_with_title("Extra Args (Optional)",
+                                     rx.input,
+                                     input_kwargs={
+                                         "id": f"{prefix}extra_sd_webui_args"},
+                                     vstack_kwargs={"align_items": "start"}
+                                     ),
+                spacing="1em"
             ),
             rx.cond(
                 add,
@@ -371,6 +386,14 @@ def extra_sd_volta(add=False) -> rx.Component:
                 # wrap="wrap",
                 # spacing="1em",
             ),
+            wrap_row(
+                component_with_title("Extra Args (Optional)",
+                        rx.input,
+                        input_kwargs={
+                            "id": f"{prefix}extra_sd_volta_args"},
+                        vstack_kwargs={"align_items": "start"}
+                        ),
+            ),
             rx.cond(
                 add,
                 rx.cond(
@@ -406,6 +429,14 @@ def extra_sd_comfy(add=False) -> rx.Component:
                             ),
                 # wrap="wrap",
                 # spacing="1em",
+            ),
+            wrap_row(
+                component_with_title("Extra Args (Optional)",
+                        rx.input,
+                        input_kwargs={
+                            "id": f"{prefix}extra_sd_comfy_args"},
+                        vstack_kwargs={"align_items": "start"}
+                        ),
             ),
             rx.cond(
                 add,
@@ -655,7 +686,7 @@ def extra_enable_textgen_api(add=False) -> rx.component:
             vstack_kwargs={
                 "align_items": "start"
             }
-        )
+        ),
     )
 
 
@@ -681,6 +712,14 @@ def extra_textgen(add=False) -> rx.component:
                             ),
             ),
             extra_enable_textgen_api(add),
+            wrap_row(
+                component_with_title("Extra Args (Optional)",
+                        rx.input,
+                        input_kwargs={
+                            "id": f"{prefix}extra_textgen_args"},
+                        vstack_kwargs={"align_items": "start"}
+                        ),
+            ),
             rx.cond(
                 add,
                 rx.cond(
@@ -787,6 +826,14 @@ def extra_langflow(add=False) -> rx.component:
                                 TEXT_COLOR_CLASS, "text-sm d-flex align-items-center"),
                             ),
                 add_cls="w-full"
+            ),
+            wrap_row(
+                component_with_title("Extra Args (Optional)",
+                        rx.input,
+                        input_kwargs={
+                            "id": f"{prefix}extra_langflow_args"},
+                        vstack_kwargs={"align_items": "start"}
+                        ),
             ),
             rx.cond(
                 add,

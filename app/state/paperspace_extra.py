@@ -67,6 +67,7 @@ class ToolState(NewEnvState):
     extra_rclone_username: str = ""
     extra_rclone_password: str = ""
     extra_rclone_serve_path: Optional[str] = ""
+    extra_rclone_args: str = ""
 
     def _add_rclone(self, add=False):
         condition = self.add_rclone_enable if add else self.extra_rclone_enable
@@ -74,6 +75,7 @@ class ToolState(NewEnvState):
             self._add_script("rclone")
             self._environment_variables['RCLONE_USERNAME'] = self.extra_rclone_username
             self._environment_variables['RCLONE_PASSWORD'] = self.extra_rclone_password
+            self._environment_variables['EXTRA_RCLONE_ARGS'] = self.extra_rclone_args
             set_value(self, 'RCLONE_SERVE_PATH',
                       self.extra_rclone_serve_path, "")
 
@@ -108,6 +110,7 @@ class ToolState(NewEnvState):
 
     extra_sd_webui_auth: str = ""
     extra_sd_webui_update: bool = False
+    extra_sd_webui_args: str = ""
 
     def _add_sd_webui(self, add=False):
         condition = self.add_sd_webui_enable if add else self.extra_sd_webui_enable
@@ -115,6 +118,7 @@ class ToolState(NewEnvState):
             self._add_script("sd_webui")
             self._add_t2i_models()
             set_value(self, 'SD_WEBUI_GRADIO_AUTH', self.extra_sd_webui_auth, "")
+            self._environment_variables['EXTRA_SD_WEBUI_ARGS'] = self.extra_sd_webui_args
             if self.extra_sd_webui_update:
                 set_value(self, "SD_WEBUI_UPDATE_REPO", "auto", "")
 
@@ -132,12 +136,14 @@ class ToolState(NewEnvState):
     add_sd_volta_enable: bool = False
     extra_sd_volta_enable: bool = False
     extra_sd_volta_update: bool = False
+    extra_sd_volta_args: str = ""
 
     def _add_sd_volta(self, add=False):
         condition = self.add_sd_volta_enable if add else self.extra_sd_volta_enable
         if condition:
             self._add_script("sd_volta")
             self._add_t2i_models()
+            self._environment_variables['EXTRA_SD_VOLTA_ARGS'] = self.extra_sd_volta_args
             if self.extra_sd_volta_update:
                 set_value(self, "SD_VOLTA_UPDATE_REPO", "auto", "")
 
@@ -155,12 +161,14 @@ class ToolState(NewEnvState):
     add_sd_comfy_enable: bool = False
     extra_sd_comfy_update: bool = False
     extra_sd_comfy_required_env_vars: List[str] = [""]
+    extra_sd_comfy_args: str = ""
 
     def _add_sd_comfy(self, add=False):
         condition = self.add_sd_comfy_enable if add else self.extra_sd_comfy_enable
         if condition:
             self._add_script("sd_comfy")
             self._add_t2i_models()
+            self._environment_variables['EXTRA_SD_COMFY_ARGS'] = self.extra_sd_comfy_args
             if self.extra_sd_comfy_update:
                 set_value(self, "SD_COMFY_UPDATE_REPO", "auto", "")
 
@@ -243,6 +251,7 @@ class ToolState(NewEnvState):
     extra_textgen_api_model: Dict[str, bool] = {
         model: False for model in LLM_MODELS
     }
+    extra_textgen_args: str = ""
 
     def _check_env_textgen(self, add=False):
         if self.extra_textgen_openai_api_enable:
@@ -265,6 +274,7 @@ class ToolState(NewEnvState):
                         self.extra_llm_models[model] = True
                         break
             self._add_llm_models()
+            self._environment_variables['EXTRA_TEXTGEN_ARGS'] = self.extra_textgen_args
 
     #### LLM Model ####
     extra_llm_models: Dict[str, bool] = {model: False for model in LLM_MODELS}
@@ -376,7 +386,7 @@ class ToolState(NewEnvState):
             self._environment_variables['FLOWISE_USERNAME'] = self.extra_flowise_username
             self._environment_variables['FLOWISE_PASSWORD'] = self.extra_flowise_password
 
-    ### Template ####
+    ### Langflow ####
     langflow_action_in_progress: bool = False
     langflow_action_progress: str = ""
     langflow_action_log: str = ""
@@ -388,8 +398,10 @@ class ToolState(NewEnvState):
     }
     extra_langflow_enable: bool = False
     add_langflow_enable: bool = False
+    extra_langflow_args: str = ""
 
     def _add_langflow(self, add=False):
         condition = self.add_langflow_enable if add else self.extra_langflow_enable
         if condition:
             self._add_script("langflow")
+            self._environment_variables['EXTRA_LANGFLOW_ARGS'] = self.extra_langflow_args
