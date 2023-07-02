@@ -245,6 +245,7 @@ class ToolState(NewEnvState):
     }
     add_textgen_enable: bool = False
     extra_textgen_enable: bool = False
+    extra_textgen_update: bool = False
     extra_textgen_openai_api_enable: bool = False
     extra_textgen_api_model: Dict[str, bool] = {
         model: False for model in LLM_MODELS
@@ -260,6 +261,8 @@ class ToolState(NewEnvState):
         condition = self.add_textgen_enable if add else self.extra_textgen_enable
         if condition:
             self._add_script("textgen")
+            if self.extra_textgen_update:
+                set_value(self, "TEXTGEN_UPDATE_REPO", "auto", "")
             if self.extra_textgen_openai_api_enable:
                 self._environment_variables['TEXTGEN_ENABLE_OPENAI_API'] = "1"
                 for model, cond in self.extra_textgen_api_model.items():

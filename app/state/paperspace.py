@@ -354,6 +354,7 @@ class EnvState(ToolState):
         except Exception as e:
             print_msg(self, "Error", str(e))
             self._toggle_power(False)          
+            self.show_progress_for_start_button = False
             self._clean_exit_task("start_notebook")
         
     async def check_notebook_status(self) -> Union[None, EventHandler]:    
