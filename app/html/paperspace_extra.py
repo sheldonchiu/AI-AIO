@@ -318,15 +318,8 @@ def extra_sd_webui(add=False) -> rx.component:
                             class_name=add_class_tag(
                                 TEXT_COLOR_CLASS, "text-sm"),
                             ),
-            ),
-            wrap_row(
                 rx.checkbox("Update to latest",
                             id=f"{prefix}extra_sd_webui_update",
-                            class_name=add_class_tag(
-                                TEXT_COLOR_CLASS, "text-sm"),
-                            ),
-                rx.checkbox("Enable Xformers",
-                            id=f"{prefix}extra_sd_webui_xformers",
                             class_name=add_class_tag(
                                 TEXT_COLOR_CLASS, "text-sm"),
                             ),
@@ -370,15 +363,13 @@ def extra_sd_volta(add=False) -> rx.Component:
                             class_name=add_class_tag(
                                 TEXT_COLOR_CLASS, "text-sm"),
                             ),
-                # wrap="wrap",
-                # spacing="1em",
-            ),
-            wrap_row(
                 rx.checkbox("Update to latest",
                             id=f"{prefix}extra_sd_volta_update",
                             class_name=add_class_tag(
                                 TEXT_COLOR_CLASS, "text-sm"),
                             ),
+                # wrap="wrap",
+                # spacing="1em",
             ),
             rx.cond(
                 add,
@@ -408,15 +399,13 @@ def extra_sd_comfy(add=False) -> rx.Component:
                             class_name=add_class_tag(
                                 TEXT_COLOR_CLASS, "text-sm"),
                             ),
-                # wrap="wrap",
-                # spacing="1em",
-            ),
-            wrap_row(
                 rx.checkbox("Update to latest",
                             id=f"{prefix}extra_sd_comfy_update",
                             class_name=add_class_tag(
                                 TEXT_COLOR_CLASS, "text-sm"),
                             ),
+                # wrap="wrap",
+                # spacing="1em",
             ),
             rx.cond(
                 add,
@@ -651,9 +640,9 @@ def extra_enable_textgen_api(add=False) -> rx.component:
                         ),
         ),
         component_with_title(
-            "Model(Only Effective when OPENAI Style API is enabled)",
+            "Model (Only Effective when OPENAI Style API is enabled)",
             rx.radio_group,
-            rx.hstack(
+            wrap_row(
                 *[
                     rx.radio(
                         model,
@@ -685,7 +674,11 @@ def extra_textgen(add=False) -> rx.component:
                             class_name=add_class_tag(
                                 TEXT_COLOR_CLASS, "text-sm d-flex align-items-center"),
                             ),
-                add_cls="w-full"
+                rx.checkbox("Update to latest",
+                            id=f"{prefix}extra_textgen_update",
+                            class_name=add_class_tag(
+                                TEXT_COLOR_CLASS, "text-sm"),
+                            ),
             ),
             extra_enable_textgen_api(add),
             rx.cond(

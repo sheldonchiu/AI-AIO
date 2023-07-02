@@ -52,7 +52,7 @@ PAPERSPACE_MONITOR_INTERVAL = 5
 STAGE_BASE_TEMPLATE = Template('''
 ### Setting up {{ title }} ###
 {% if download_model %}
-### Downloading Model for {{ title }} ###
+### Downloading Models ###
 {% endif %}
 ### Starting {{ title }} ###
 ''')

@@ -102,14 +102,11 @@ class ToolState(NewEnvState):
         "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Stable Diffusion WebUI", "download_model": True}).split("\n") if f],
         "stop": [],
         "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Stable Diffusion WebUI", "download_model": True}).split("\n") if f],
-        "download_model": ["### Downloading Model for Stable Diffusion WebUI ###"],
     }
     add_sd_webui_enable: bool = False
     extra_sd_webui_enable: bool = False
 
     extra_sd_webui_auth: str = ""
-    extra_sd_webui_gradio_share: bool = False
-    extra_sd_webui_xformers: bool = False
     extra_sd_webui_update: bool = False
 
     def _add_sd_webui(self, add=False):
@@ -117,11 +114,7 @@ class ToolState(NewEnvState):
         if condition:
             self._add_script("sd_webui")
             self._add_t2i_models()
-            set_value(self, 'GRADIO_AUTH', self.extra_sd_webui_auth, "")
-            set_value(self, 'GRADIO_LINK',
-                      self.extra_sd_webui_gradio_share, False)
-            set_value(self, 'ACTIVATE_XFORMERS',
-                      self.extra_sd_webui_xformers, False)
+            set_value(self, 'SD_WEBUI_GRADIO_AUTH', self.extra_sd_webui_auth, "")
             if self.extra_sd_webui_update:
                 set_value(self, "SD_WEBUI_UPDATE_REPO", "auto", "")
 
@@ -245,6 +238,7 @@ class ToolState(NewEnvState):
     }
     add_textgen_enable: bool = False
     extra_textgen_enable: bool = False
+    extra_textgen_update: bool = False
     extra_textgen_openai_api_enable: bool = False
     extra_textgen_api_model: Dict[str, bool] = {
         model: False for model in LLM_MODELS
@@ -260,6 +254,8 @@ class ToolState(NewEnvState):
         condition = self.add_textgen_enable if add else self.extra_textgen_enable
         if condition:
             self._add_script("textgen")
+            if self.extra_textgen_update:
+                set_value(self, "TEXTGEN_UPDATE_REPO", "auto", "")
             if self.extra_textgen_openai_api_enable:
                 self._environment_variables['TEXTGEN_ENABLE_OPENAI_API'] = "1"
                 for model, cond in self.extra_textgen_api_model.items():
