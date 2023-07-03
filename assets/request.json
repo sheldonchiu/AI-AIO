@@ -1,0 +1,9 @@
+{
+    "fetch": [
+        {
+            "files": [
+                "request.py"
+            ]
+        }
+    ]
+}

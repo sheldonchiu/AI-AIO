@@ -518,9 +518,7 @@ def prepare_power_panel() -> rx.Component:
         wrap_row(
             el.div(
                 # power light
-                rx.html('''<svg aria-hidden='true' class='w-6 h-6' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'>
-                            <path clip-rule='evenodd' d='M10 2a.75.75 0 01.75.75v7.5a.75.75 0 01-1.5 0v-7.5A.75.75 0 0110 2zM5.404 4.343a.75.75 0 010 1.06 6.5 6.5 0 109.192 0 .75.75 0 111.06-1.06 8 8 0 11-11.313 0 .75.75 0 011.06 0z' fill-rule='evenodd'></path>
-                        </svg>'''
+                rx.html('''<svg aria-hidden='true' class='w-6 h-6' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'><path clip-rule='evenodd' d='M10 2a.75.75 0 01.75.75v7.5a.75.75 0 01-1.5 0v-7.5A.75.75 0 0110 2zM5.404 4.343a.75.75 0 010 1.06 6.5 6.5 0 109.192 0 .75.75 0 111.06-1.06 8 8 0 11-11.313 0 .75.75 0 011.06 0z' fill-rule='evenodd'></path></svg>'''
                         ),
                 class_name=BaseVar(
                     name=f"text-${PaperspaceState.power_light}", is_local=True, is_string=True)
@@ -559,14 +557,17 @@ def prepare_power_panel() -> rx.Component:
                 ),
                 rx.button(
                     PaperspaceState.power_button,
-                    class_name=NORMAL_BUTTON_CLS,
+                    class_name=add_class_tag(NORMAL_BUTTON_CLS,"py-button"),
                     size="md",
-                    on_click=[
-                        lambda: PaperspaceState.set_show_progress_for_start_button(
-                            True),
-                        lambda: EnvState.start_stop_notebook(
-                            get_ref_value_fn(prefix="main")),
-                    ]
+                    # on_click=[
+                    #     lambda: PaperspaceState.set_show_progress_for_start_button(
+                    #         True),
+                    #     lambda: EnvState.start_stop_notebook(
+                    #         get_ref_value_fn(prefix="main")),
+                    # ]
+                    custom_attrs={
+                        "py-click": "test()"
+                    }
                 ),
             ),
             # style={"paddingTop": "20px"},
