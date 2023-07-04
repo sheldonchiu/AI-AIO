@@ -163,13 +163,7 @@ def custom_code_block(content: rx.Component, id: str = None) -> rx.Component:
         wrap_long_lines=True,
     )
 
-class PyConfig(rx.Component):
-    tag="py-config"
-    type: str = None
-    src: str = None
-    
-pyconfig = PyConfig.create
-    
+
 class StateUpdater(rx.Component):
     """A component that defines a hook for updating state variables in a React component.
 

@@ -50,12 +50,9 @@ def prepare_alert() -> rx.Component:
         is_open=PaperspaceState.show_alert,
         close_on_overlay_click=True,
     )
-    
 
 def index() -> rx.Component:
     return el.div(
-        pyconfig(type="json", src="request.json"),
-        el.script(src="test.py",type="py-script", async_=True, defer=True),
         # RemoteExecuteHook.create(task_progress=ControlPanelState.task_in_progress, base_state = BaseState),
         StateUpdater.create(vars_to_update = {key: value for key, value in EnvState.vars.items() if key.startswith(prefix_to_watch)},
                             hook_vars=[EnvState.env_id], # Only update when env_id changes to avoid unnecessary updates
@@ -100,7 +97,6 @@ stylesheets = [
 script_tag = el.script(
     src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.6/flowbite.min.js"
     )
-pyscript = el.script(type="module", src="https://pyscript.net/latest/pyscript.js", defer=True)
 
 app = rx.App(state=BaseState, style=style, stylesheets=stylesheets)
 
@@ -109,6 +105,6 @@ app.api.add_api_route("/download_env/{token}", download_json)
 app.add_page(index, 
              title="Paperspace AI Toolbox",
              description="A super toolbox for everyone to enjoy AI on Papaerspace",
-             script_tags=[script_tag, dark_mode, pyscript],
+             script_tags=[script_tag, dark_mode],
              on_load=PaperspaceState.update_envs if WEB_HOSTING == False else None)
 app.compile()
