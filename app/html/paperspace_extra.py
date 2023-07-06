@@ -783,7 +783,7 @@ def extra_flowise(add=False) -> rx.component:
                     component_with_title("Username",
                                          rx.input,
                                          input_kwargs={
-                                             "id": f"{prefix}extra_flowise_user"},
+                                             "id": f"{prefix}extra_flowise_username"},
                                          vstack_kwargs={
                                              "align_items": "start"}
                                          ),
