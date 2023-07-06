@@ -56,12 +56,15 @@ STAGE_BASE_TEMPLATE = Template('''
 {% endif %}
 ### Starting {{ title }} ###
 ''')
-LLM_MODELS = ["Vicuna 13B v1.3", "Guanaco 13B", "Long Chat 13B", "WizardLM-13B"]
+LLM_MODELS = ["Vicuna 13B v1.3", "Guanaco 13B", 
+              "Long Chat 13B", "WizardLM-13B",
+              "WizardCoder-15B"]
 LLM_MAPPING = {
     "Vicuna 13B v1.3": "TheBloke/vicuna-13b-v1.3.0-GPTQ",
     "Guanaco 13B": "TheBloke/guanaco-13B-GPTQ",
     "Long Chat 13B": "TheBloke/LongChat-13B-GPTQ",
-    "WizardLM-13B": "TheBloke/WizardLM-13B-V1.0-Uncensored-GPTQ"
+    "WizardLM-13B": "TheBloke/WizardLM-13B-V1.0-Uncensored-GPTQ",
+    "WizardCoder-15B": "TheBloke/WizardCoder-15B-1.0-GPTQ"
 }
 FASTCHAT_MODELS = ["vicuna-13b", "vicuna-7b", "chatglm-6b"]
 

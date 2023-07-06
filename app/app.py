@@ -90,15 +90,13 @@ style = {
 
 dark_mode = el.script(src="/dark_mode.js", defer=True)
 stylesheets = [
-             "https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.4/flowbite.min.css", 
-             "/globals.css",
-             "/app.css"
+             "https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.6/flowbite.min.css", 
              ]
 
 # Add state and page to the app.
 script_tag = el.script(
-    src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.4/flowbite.min.js")
-
+    src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.6/flowbite.min.js"
+    )
 
 app = rx.App(state=BaseState, style=style, stylesheets=stylesheets)
 
