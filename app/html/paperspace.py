@@ -218,7 +218,6 @@ def extra_options(add=False) -> rx.component:
                 extra_fastchat(add),
                 extra_flowise(add),
                 extra_langflow(add),
-                extra_llm_model_download(add),
             ),
         ),
         rx.accordion_item(
