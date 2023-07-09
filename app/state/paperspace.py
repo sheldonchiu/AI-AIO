@@ -433,6 +433,8 @@ class EnvState(ToolState):
                 for notebook in client.get_notobooks_by_project_name(f"{self.env_name} From Toolbox"):             
                     if notebook.state == "Running":
                         self.notebook_url = client.get_notebook_url(notebook)
+                        self.env_project_id = notebook.project_handle
+                        self.env_notebook_id = notebook.id
                         self._toggle_power(True)
                         return
             except:
