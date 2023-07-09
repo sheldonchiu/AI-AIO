@@ -220,9 +220,6 @@ class EnvState(ToolState):
         
         self._add_minio(add)
         self._add_rclone(add)
-        # Start tunnel for all the components if using quick tunnel
-        if self._environment_variables['CF_TOKEN'] == "quick":
-            self._add_cloudflared(add)
                     
     def _validate_env(self, validate_gpu= False) -> bool:
         if validate_gpu and not any(self.gpu_list.values()):
@@ -431,17 +428,18 @@ class EnvState(ToolState):
                     self.gpu_available[gpu] = "text-green-500"
                 else:
                     self.gpu_available[gpu] = "text-red-500"
-            if self.env_project_id != "":
-                try:
-                    self._toggle_power(False)
-                    for notebook in client.get_notobooks_by_project_name(f"{self.env_name} From Toolbox"):             
-                        if notebook.state == "Running":
-                            self.notebook_url = client.get_notebook_url(notebook)
-                            self._toggle_power(True)
-                            return
-                except:
-                    logger.exception("Failed to get notebook status")
-                    print_msg(self, "Error", "Failed to get notebook status")
+            try:
+                self._toggle_power(False)
+                for notebook in client.get_notobooks_by_project_name(f"{self.env_name} From Toolbox"):             
+                    if notebook.state == "Running":
+                        self.notebook_url = client.get_notebook_url(notebook)
+                        self.env_project_id = notebook.project_handle
+                        self.env_notebook_id = notebook.id
+                        self._toggle_power(True)
+                        return
+            except:
+                logger.exception("Failed to get notebook status")
+                print_msg(self, "Error", "Failed to get notebook status")
         except:
             logger.exception("Failed to sync")
             print_msg(self, "Error", "Failed to sync, please check if the API key is correct")

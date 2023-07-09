@@ -40,7 +40,8 @@ class ToolState(NewEnvState):
     def _add_cloudflared(self, add=False):
         condition = self.add_cloudflared_enable if add else self.extra_cloudflared_enable
         if condition:
-            self._add_script("cloudflared")
+            # cloudflare start logic will be handled by the script, don't need to run add_script
+            # self._add_script("cloudflared")
             if self.extra_cloudflared_token == "":
                 self._environment_variables['CF_TOKEN'] = 'quick'
             else:
