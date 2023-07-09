@@ -220,9 +220,6 @@ class EnvState(ToolState):
         
         self._add_minio(add)
         self._add_rclone(add)
-        # Start tunnel for all the components if using quick tunnel
-        if self._environment_variables['CF_TOKEN'] == "quick":
-            self._add_cloudflared(add)
                     
     def _validate_env(self, validate_gpu= False) -> bool:
         if validate_gpu and not any(self.gpu_list.values()):
