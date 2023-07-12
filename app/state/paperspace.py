@@ -218,6 +218,9 @@ class EnvState(ToolState):
         self._add_flowise(add)
         self._add_langflow(add)
         
+        self._add_musicgen(add)
+        self._add_kosmos2(add)
+        
         self._add_minio(add)
         self._add_rclone(add)
                     

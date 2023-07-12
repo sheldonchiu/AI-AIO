@@ -222,6 +222,17 @@ def extra_options(add=False) -> rx.component:
         ),
         rx.accordion_item(
             rx.accordion_button(
+                rx.text("Other"),
+                rx.accordion_icon(),
+                class_name=ACCORDION_BUTTON_CLS,
+            ),
+            rx.accordion_panel(
+                extra_musicgen(add),
+                extra_kosmos2(add),
+            ),
+        ),
+        rx.accordion_item(
+            rx.accordion_button(
                 rx.text("Utilities"),
                 rx.accordion_icon(),
                 class_name=ACCORDION_BUTTON_CLS,

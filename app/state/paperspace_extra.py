@@ -41,10 +41,10 @@ class ToolState(NewEnvState):
         condition = self.add_cloudflared_enable if add else self.extra_cloudflared_enable
         if condition:
             # cloudflare start logic will be handled by the script, don't need to run add_script
-            # self._add_script("cloudflared")
             if self.extra_cloudflared_token == "":
                 self._environment_variables['CF_TOKEN'] = 'quick'
             else:
+                self._add_script("cloudflared")
                 self._environment_variables['CF_TOKEN'] = self.extra_cloudflared_token
 
     #### Discord ####
@@ -86,6 +86,7 @@ class ToolState(NewEnvState):
     extra_t2i_embedding_list: str = ""
     extra_t2i_vae_list: str = ""
     extra_t2i_controlnet_list: str = ""
+    extra_t2i_upscaler_list: str = ""
     extra_t2i_hf_token: str = ""
 
     def _add_t2i_models(self):
@@ -94,6 +95,7 @@ class ToolState(NewEnvState):
         set_value(self, 'EMBEDDING_LIST', self.extra_t2i_embedding_list, "")
         set_value(self, 'VAE_LIST', self.extra_t2i_vae_list, "")
         set_value(self, 'CONTROLNET_LIST', self.extra_t2i_controlnet_list, "")
+        set_value(self, 'UPSCALER_LIST', self.extra_t2i_upscaler_list, "")
         set_value(self, 'HF_TOKEN', self.extra_t2i_hf_token, "")
 
     #### Stable Diffusion WebUI ####
@@ -406,3 +408,45 @@ class ToolState(NewEnvState):
         if condition:
             self._add_script("langflow")
             self._environment_variables['EXTRA_LANGFLOW_ARGS'] = self.extra_langflow_args
+
+    ### MusicGen ####
+    musicgen_action_in_progress: bool = False
+    musicgen_action_progress: str = ""
+    musicgen_action_log: str = ""
+    musicgen_view_log: bool = False
+    musicgen_substage: Dict[str, List[str]] = {
+        "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "{{ title }}", "download_model" : False}).split("\n") if f],
+        "stop": [],
+        "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "{{ title }}", "download_model" : False}).split("\n") if f],
+    }
+    extra_musicgen_enable: bool = False
+    add_musicgen_enable: bool = False
+    extra_musicgen_update: bool = False
+    extra_musicgen_required_env_vars: List[str] = [""]
+
+    def _add_musicgen(self, add=False):
+        condition = self.add_musicgen_enable if add else self.extra_musicgen_enable
+        if condition:
+            self._add_script("musicgen")
+        if self.extra_musicgen_update:
+            set_value(self, "MUSICGEN_UPDATE_REPO", "auto", "")
+            
+            
+    ### Kosmos-2 ####
+    kosmos2_action_in_progress: bool = False
+    kosmos2_action_progress: str = ""
+    kosmos2_action_log: str = ""
+    kosmos2_view_log: bool = False
+    kosmos2_substage: Dict[str, List[str]] = {
+        "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "{{ title }}", "download_model" : True}).split("\n") if f],
+        "stop": [],
+        "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "{{ title }}", "download_model" : True}).split("\n") if f],
+    }
+    extra_kosmos2_enable: bool = False
+    add_kosmos2_enable: bool = False
+    extra_kosmos2_required_env_vars: List[str] = [""]
+
+    def _add_kosmos2(self, add=False):
+        condition = self.add_kosmos2_enable if add else self.extra_kosmos2_enable
+        if condition:
+            self._add_script("kosmos2")
