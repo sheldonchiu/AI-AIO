@@ -305,6 +305,13 @@ def prepare_t2i_model_selection(add=False) -> rx.component:
                                  vstack_kwargs={"class_name": "w-full",
                                                 "align_items": "start"}
                                  ),
+            component_with_title("Upscaler List (Only for ComfyUI)",
+                                 rx.text_area,
+                                 input_kwargs={
+                                     "id": f"{prefix}extra_t2i_upscaler_list"},
+                                 vstack_kwargs={"class_name": "w-full",
+                                                "align_items": "start"}
+                                 ),
             rx.cond(
                 add,
                 download_action_panel("sd_download")
@@ -841,6 +848,67 @@ def extra_langflow(add=False) -> rx.component:
                     EnvState.langflow_action_in_progress,
                     progress_log_panel("langflow"),
                     component_action_panel("langflow"),
+                ),
+            ),
+            class_name="overflow-y-auto w-full"
+        ),
+    )
+
+def extra_musicgen(add=False) -> rx.component:
+    prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
+    return rx.accordion_item(
+        rx.accordion_button(
+            rx.text("MusicGen"),
+            rx.accordion_icon(),
+            class_name=ACCORDION_BUTTON_CLS,
+        ),
+        rx.accordion_panel(
+            wrap_row(
+                rx.checkbox("Enable",
+                            id=f"{prefix}add_musicgen_enable" if add else f"{prefix}extra_musicgen_enable",
+                            class_name=add_class_tag(
+                                TEXT_COLOR_CLASS, "text-sm"),
+                            ),
+                rx.checkbox("Update to latest",
+                            id=f"{prefix}extra_musicgen_update",
+                            class_name=add_class_tag(
+                                TEXT_COLOR_CLASS, "text-sm"),
+                            ),
+            ),
+            rx.cond(
+                add,
+                rx.cond(
+                    EnvState.musicgen_action_in_progress,
+                    progress_log_panel("musicgen"),
+                    component_action_panel("musicgen"),
+                ),
+            ),
+            class_name="overflow-y-auto w-full"
+        ),
+    )
+    
+def extra_kosmos2(add=False) -> rx.component:
+    prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
+    return rx.accordion_item(
+        rx.accordion_button(
+            rx.text("Kosmos-2 Super Cool Image Caption (Experimental)"),
+            rx.accordion_icon(),
+            class_name=ACCORDION_BUTTON_CLS,
+        ),
+        rx.accordion_panel(
+            wrap_row(
+                rx.checkbox("Enable",
+                            id=f"{prefix}add_kosmos2_enable" if add else f"{prefix}extra_kosmos2_enable",
+                            class_name=add_class_tag(
+                                TEXT_COLOR_CLASS, "text-sm"),
+                            ),
+            ),
+            rx.cond(
+                add,
+                rx.cond(
+                    EnvState.kosmos2_action_in_progress,
+                    progress_log_panel("kosmos2"),
+                    component_action_panel("kosmos2"),
                 ),
             ),
             class_name="overflow-y-auto w-full"

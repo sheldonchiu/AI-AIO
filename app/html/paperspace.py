@@ -218,6 +218,18 @@ def extra_options(add=False) -> rx.component:
                 extra_fastchat(add),
                 extra_flowise(add),
                 extra_langflow(add),
+                extra_llm_model_download(add),
+            ),
+        ),
+        rx.accordion_item(
+            rx.accordion_button(
+                rx.text("Other"),
+                rx.accordion_icon(),
+                class_name=ACCORDION_BUTTON_CLS,
+            ),
+            rx.accordion_panel(
+                extra_musicgen(add),
+                extra_kosmos2(add),
             ),
         ),
         rx.accordion_item(
