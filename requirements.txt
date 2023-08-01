@@ -2,3 +2,4 @@ gradient
 aiohttp
 python-multipart
 git+https://github.com/pynecone-io/pynecone.git@51452a6e5a2d868d0a9ae506745576c1e6157714#egg=reflex
+urllib3==1.26.2
