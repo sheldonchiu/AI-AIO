@@ -185,7 +185,8 @@ def container_advanced() -> rx.component:
 
 def extra_options(add=False) -> rx.component:
     utilities = [] if add else [extra_command(add)]
-    utilities += [extra_cloudflare(add),
+    #extra_cloudflare(add),
+    utilities += [
                   extra_minio(add),
                   extra_rclone(add),
                   extra_discord(add),

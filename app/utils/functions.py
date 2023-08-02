@@ -50,7 +50,7 @@ async def send_command(cls, command: str):
     Raises:
         None.
     """
-    url = f"{clean_url(cls.extra_command_url)}/execute"
+    url = f"{clean_url(cls.command_url)}/execute"
     auth = aiohttp.BasicAuth(cls.extra_command_user,
                              cls.extra_command_password)
     data = {'command': command}
@@ -84,7 +84,7 @@ async def run_background_task(cls, command: str):
     Raises:
         None.
     """
-    url = f"{clean_url(cls.extra_command_url)}/run"
+    url = f"{clean_url(cls.command_url)}/run"
     auth = aiohttp.BasicAuth(cls.extra_command_user,
                              cls.extra_command_password)
     data = {'command': command}

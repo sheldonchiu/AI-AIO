@@ -288,7 +288,7 @@ class ToolState(NewEnvState):
 
     ### Command Server ####
     extra_command_enable: bool = False
-    extra_command_url: str = ""
+    command_url: str = ""
     extra_command_user: str = ""
     extra_command_password: str = ""
     extra_command_required_env_vars: List[str] = [

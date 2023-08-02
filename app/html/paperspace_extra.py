@@ -587,13 +587,13 @@ def extra_command(add=False) -> rx.component:
                             ),
             ),
             wrap_row(
-                component_with_title("Server URL",
-                                     rx.input,
-                                     input_kwargs={
-                                         "id": f"{prefix}extra_command_url"},
-                                     vstack_kwargs={
-                                         "align_items": "start"}
-                                     ),
+                # component_with_title("Server URL",
+                #                      rx.input,
+                #                      input_kwargs={
+                #                          "id": f"{prefix}extra_command_url"},
+                #                      vstack_kwargs={
+                #                          "align_items": "start"}
+                #                      ),
                 component_with_title("Username",
                                      rx.input,
                                      input_kwargs={

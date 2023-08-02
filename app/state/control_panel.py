@@ -64,19 +64,24 @@ class ControlPanelState(EnvState):
         setattr(self, f"{name}_view_log", value)
     
     async def _execute(self, command, success_msg=None, fail_msg=None, skip_msg=False):
-        if self.extra_command_url == "":
+        if self.command_url == "":
             print_msg(self, "Error", "Please set the command server URL first.")
             return False
         else:
             try:
                 result = await send_command(self, command)
-                if result['code'] == 0:
+                # temp fix for nvidia-smi
+                if result['code'] == 0 or result['code'] == 14:
                     if not skip_msg:
                         print_msg(self, "Success", success_msg.format(result['output']))
                     return result['output']
                 else:
                     if not skip_msg:
-                        print_msg(self, "Error", fail_msg.format(result['error']))
+                        if fail_msg:
+                            print_msg(self, "Error", fail_msg.format(result['error']))
+                        else:
+                            print_msg(self, "Error", result['error'])
+                    logger.error(result['error'])
                     return result['error']
             except aiohttp.client_exceptions.ClientConnectorError:
                 logger.exception("Unknown error")
@@ -98,7 +103,7 @@ class ControlPanelState(EnvState):
     @batch_update_state
     async def list_files_in_dir(self):
         command = f"find {self.path_to_list} -maxdepth 1"
-        if self.extra_command_url == "":
+        if self.command_url == "":
             print_msg(self, "Error", "Please set the command server URL first.")
         else:
             try:
@@ -194,7 +199,7 @@ class ControlPanelState(EnvState):
             return EventHandler(fn=self.download_model.func)(name)
     
     async def monitor(self):         
-        if self.extra_command_url == "":
+        if self.command_url == "":
             print_msg(self, "Error", "Please set the command server URL first.")
             clean_exit_task(self, "monitor")
             return
@@ -339,7 +344,7 @@ class ControlPanelState(EnvState):
         
     # TODO: redo this
     async def install_components(self):
-        if self.extra_command_url == "":
+        if self.command_url == "":
             print_msg(self, "Error", "Please set the command server URL first.")
         else:
             empty_var = []

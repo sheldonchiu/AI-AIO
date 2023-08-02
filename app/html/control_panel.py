@@ -362,14 +362,14 @@ def get_control_panel() -> rx.Component:
     return el.div(
         wrap_card(
             wrap_row(
-                component_with_title(
-                    "Command Server URL",
-                    rx.input,
-                    # input_kwargs={"id" : f"{prefix}extra_command_url"},
-                    input_kwargs={"id": f"{prefix}extra_command_url",
-                                  "on_blur": EnvState.set_extra_command_url},
-                    # vstack_kwargs={'class_name': "w-4/12", "align_items": "start"}
-                ),
+                # component_with_title(
+                #     "Command Server URL",
+                #     rx.input,
+                #     input_kwargs={"id" : f"{prefix}extra_command_url"},
+                #     # input_kwargs={"id": f"{prefix}extra_command_url",
+                #     #               "on_blur": EnvState.set_extra_command_url},
+                #     # vstack_kwargs={'class_name': "w-4/12", "align_items": "start"}
+                # ),
                 component_with_title("Command Server Username",
                                      rx.input,
                                      # input_kwargs={"id": f"{prefix}extra_command_user"},
