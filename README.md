@@ -28,7 +28,7 @@
 |[Stable Diffusion web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)👍|[Text Generation WebUI](https://github.com/oobabooga/text-generation-webui)👍|[A Standalone Image browser](https://github.com/zanllp/sd-webui-infinite-image-browsing.git)|
 |[Stable Diffusion Comfy](https://github.com/comfyanonymous/ComfyUI)👍|[FastChat](https://github.com/lm-sys/FastChat)|Command Server to execute command using REST API|
 |[Stable Diffusion Volta ](https://github.com/VoltaML/voltaML-fast-stable-diffusion)|[Langflow👍](https://github.com/logspace-ai/langflow)|Model Downloader (support Huggingface, Civitai, URL)|
-| |[Flowise](https://github.com/FlowiseAI/Flowise)|Remote access the tools using Cloudflare Tunnel (account not required)|
+| |[Flowise](https://github.com/FlowiseAI/Flowise)|Remote access the tools using direct URL|
 | | |Sync files to Minio S3  |
 | | |Web File Browser |
 | | |Discord Notification |
