@@ -194,7 +194,7 @@ def extra_options(add=False) -> rx.component:
     sd = [
         extra_sd_webui(add),
         extra_sd_comfy(add),
-        extra_sd_volta(add),
+        # extra_sd_volta(add),
         extra_t2i_image_browser(add)
     ]
     if not add:
@@ -216,7 +216,7 @@ def extra_options(add=False) -> rx.component:
             ),
             rx.accordion_panel(
                 extra_textgen(add),
-                extra_fastchat(add),
+                # extra_fastchat(add),
                 extra_flowise(add),
                 extra_langflow(add),
                 extra_llm_model_download(add),

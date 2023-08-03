@@ -24,28 +24,28 @@ def check_env(self, condition: bool, required_env_vars: List[str]):
 
 class ToolState(NewEnvState):
     #### Cloudflare ####
-    cloudflared_action_in_progress: bool = False
-    cloudflared_action_progress: str = ""
-    cloudflared_action_log: str = ""
-    cloudflared_view_log: bool = False
-    cloudflared_substage: Dict[str, List[str]] = {
-        "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Cloudflare Tunnel"}).split("\n") if f],
-        "stop": [],
-        "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Cloudflare Tunnel"}).split("\n") if f],
-    }
-    add_cloudflared_enable: bool = False
-    extra_cloudflared_enable: bool = False
-    extra_cloudflared_token: str = ""
+    # cloudflared_action_in_progress: bool = False
+    # cloudflared_action_progress: str = ""
+    # cloudflared_action_log: str = ""
+    # cloudflared_view_log: bool = False
+    # cloudflared_substage: Dict[str, List[str]] = {
+    #     "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Cloudflare Tunnel"}).split("\n") if f],
+    #     "stop": [],
+    #     "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Cloudflare Tunnel"}).split("\n") if f],
+    # }
+    # add_cloudflared_enable: bool = False
+    # extra_cloudflared_enable: bool = False
+    # extra_cloudflared_token: str = ""
 
-    def _add_cloudflared(self, add=False):
-        condition = self.add_cloudflared_enable if add else self.extra_cloudflared_enable
-        if condition:
-            # cloudflare start logic will be handled by the script, don't need to run add_script
-            if self.extra_cloudflared_token == "":
-                self._environment_variables['CF_TOKEN'] = 'quick'
-            else:
-                self._add_script("cloudflared")
-                self._environment_variables['CF_TOKEN'] = self.extra_cloudflared_token
+    # def _add_cloudflared(self, add=False):
+    #     condition = self.add_cloudflared_enable if add else self.extra_cloudflared_enable
+    #     if condition:
+    #         # cloudflare start logic will be handled by the script, don't need to run add_script
+    #         if self.extra_cloudflared_token == "":
+    #             self._environment_variables['CF_TOKEN'] = 'quick'
+    #         else:
+    #             self._add_script("cloudflared")
+    #             self._environment_variables['CF_TOKEN'] = self.extra_cloudflared_token
 
     #### Discord ####
     extra_discord_token: str = ""
