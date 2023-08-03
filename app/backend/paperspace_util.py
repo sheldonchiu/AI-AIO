@@ -43,13 +43,17 @@ class Paperspace_client():
         return notebooks
 
     def get_notobooks_by_project_name(self, project_name):
+        project_id = None
         project_list = self.projects_client.list()
         for project in project_list:
             if project.name == project_name:
                 project_id = project.id
                 break
-        notebooks = [n for n in self.notebooks_client.list(tags=[]) if n.project_handle==project_id]
-        return notebooks
+        if project_id:
+            notebooks = [n for n in self.notebooks_client.list(tags=[]) if n.project_handle==project_id]
+            return notebooks
+        else:
+            return []
     
     def create_notebook(self, **kwargs):
         return self.notebooks_client.create(**kwargs)

@@ -2,7 +2,6 @@ FROM python:3.11-slim as base
 
 RUN adduser --disabled-password reflex
 
-
 FROM base as build
 
 WORKDIR /app
@@ -15,7 +14,8 @@ RUN apt-get update && apt-get install -y \
     && pip install wheel
 
 COPY . .
-RUN pip install -r requirements.txt
+RUN pip install --no-build-isolation gradient \
+    && pip install -r requirements.txt
 
 FROM base as runtime
 

@@ -127,42 +127,42 @@ def component_action_panel(name: str) -> rx.component:
     )
 
 
-def extra_cloudflare(add=False) -> rx.component:
-    prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
-    return rx.accordion_item(
-        rx.accordion_button(
-            rx.text("Cloudflare Tunnel"),
-            rx.accordion_icon(),
-            class_name=ACCORDION_BUTTON_CLS,
-        ),
-        rx.accordion_panel(
-            wrap_row(
-                rx.checkbox("Enable",
-                            id=f"{prefix}add_cloudflared_enable" if add else f"{prefix}extra_cloudflared_enable",
-                            class_name=add_class_tag(
-                                TEXT_COLOR_CLASS, "text-sm"),
-                            ),
-            ),
-            wrap_row(
-                component_with_title("Token",
-                                     rx.input,
-                                     input_kwargs={
-                                         "id": f"{prefix}extra_cloudflared_token"},
-                                     vstack_kwargs={
-                                         "align_items": "start"}
-                                     ),
-            ),
-            rx.cond(
-                add,
-                rx.cond(
-                    EnvState.cloudflared_action_in_progress,
-                    progress_log_panel("cloudflared"),
-                    component_action_panel("cloudflared"),
-                ),
-            ),
-            class_name="overflow-y-auto w-full"
-        ),
-    )
+# def extra_cloudflare(add=False) -> rx.component:
+#     prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
+#     return rx.accordion_item(
+#         rx.accordion_button(
+#             rx.text("Cloudflare Tunnel"),
+#             rx.accordion_icon(),
+#             class_name=ACCORDION_BUTTON_CLS,
+#         ),
+#         rx.accordion_panel(
+#             wrap_row(
+#                 rx.checkbox("Enable",
+#                             id=f"{prefix}add_cloudflared_enable" if add else f"{prefix}extra_cloudflared_enable",
+#                             class_name=add_class_tag(
+#                                 TEXT_COLOR_CLASS, "text-sm"),
+#                             ),
+#             ),
+#             wrap_row(
+#                 component_with_title("Token",
+#                                      rx.input,
+#                                      input_kwargs={
+#                                          "id": f"{prefix}extra_cloudflared_token"},
+#                                      vstack_kwargs={
+#                                          "align_items": "start"}
+#                                      ),
+#             ),
+#             rx.cond(
+#                 add,
+#                 rx.cond(
+#                     EnvState.cloudflared_action_in_progress,
+#                     progress_log_panel("cloudflared"),
+#                     component_action_panel("cloudflared"),
+#                 ),
+#             ),
+#             class_name="overflow-y-auto w-full"
+#         ),
+#     )
 
 
 def extra_discord(add=False) -> rx.component:
@@ -587,13 +587,13 @@ def extra_command(add=False) -> rx.component:
                             ),
             ),
             wrap_row(
-                component_with_title("Server URL",
-                                     rx.input,
-                                     input_kwargs={
-                                         "id": f"{prefix}extra_command_url"},
-                                     vstack_kwargs={
-                                         "align_items": "start"}
-                                     ),
+                # component_with_title("Server URL",
+                #                      rx.input,
+                #                      input_kwargs={
+                #                          "id": f"{prefix}extra_command_url"},
+                #                      vstack_kwargs={
+                #                          "align_items": "start"}
+                #                      ),
                 component_with_title("Username",
                                      rx.input,
                                      input_kwargs={

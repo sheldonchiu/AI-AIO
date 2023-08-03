@@ -383,6 +383,9 @@ class EnvState(ToolState):
                         print_msg(self, "Warning", "Failed to update project id and notebook id to database")
             # get notebook url
             self.notebook_url = self._client.get_notebook_url(notebook)
+            if self.command_url == "":
+                self.command_url = self.notebook_url.split('?')[0] + '/command/'
+
         elif notebook.state == "Failed":
             logger.info("Notebook failed to start, maybe their platform is down")
             print_msg(self, "Error", "Notebook failed to start, maybe their platform is down")
@@ -436,6 +439,8 @@ class EnvState(ToolState):
                 for notebook in client.get_notobooks_by_project_name(f"{self.env_name} From Toolbox"):             
                     if notebook.state == "Running":
                         self.notebook_url = client.get_notebook_url(notebook)
+                        if self.command_url == "":
+                            self.command_url = self.notebook_url.split('?')[0] + '/command/'
                         self.env_project_id = notebook.project_handle
                         self.env_notebook_id = notebook.id
                         self._toggle_power(True)
