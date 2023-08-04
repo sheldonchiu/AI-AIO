@@ -206,7 +206,7 @@ class EnvState(ToolState):
             self._add_command()
             
         self._add_discord()
-        self._add_cloudflared(add)
+        # self._add_cloudflared(add)
         
         self._add_sd_webui(add)
         self._add_sd_comfy(add)
