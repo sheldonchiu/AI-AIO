@@ -914,3 +914,31 @@ def extra_kosmos2(add=False) -> rx.component:
             class_name="overflow-y-auto w-full"
         ),
     )
+    
+def extra_preprocess(add=False) -> rx.component:
+    prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
+    return rx.accordion_item(
+        rx.accordion_button(
+            rx.text("SD Trainer"),
+            rx.accordion_icon(),
+            class_name=ACCORDION_BUTTON_CLS,
+        ),
+        rx.accordion_panel(
+            wrap_row(
+                rx.checkbox("Enable",
+                            id=f"{prefix}add_preprocess_enable" if add else f"{prefix}extra_preprocess_enable",
+                            class_name=add_class_tag(
+                                TEXT_COLOR_CLASS, "text-sm"),
+                            ),
+            ),
+            rx.cond(
+                add,
+                rx.cond(
+                    EnvState.preprocess_action_in_progress,
+                    progress_log_panel("preprocess"),
+                    component_action_panel("preprocess"),
+                ),
+            ),
+            class_name="overflow-y-auto w-full"
+        ),
+    )

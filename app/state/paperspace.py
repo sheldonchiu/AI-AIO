@@ -210,6 +210,7 @@ class EnvState(ToolState):
         
         self._add_sd_webui(add)
         self._add_sd_comfy(add)
+        self._add_preprocess(add)
         self._add_sd_volta(add)
         self._add_image_browser(add)
         

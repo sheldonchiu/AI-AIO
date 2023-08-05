@@ -450,3 +450,23 @@ class ToolState(NewEnvState):
         condition = self.add_kosmos2_enable if add else self.extra_kosmos2_enable
         if condition:
             self._add_script("kosmos2")
+            
+    ### Preprocess ####
+    preprocess_action_in_progress: bool = False
+    preprocess_action_progress: str = ""
+    preprocess_action_log: str = ""
+    preprocess_view_log: bool = False
+    preprocess_substage: Dict[str, List[str]] = {
+        "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "{{ title }}", "download_model" : False}).split("\n") if f],
+        "stop": [],
+        "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "{{ title }}", "download_model" : False}).split("\n") if f],
+    }
+    extra_preprocess_enable: bool = False
+    add_preprocess_enable: bool = False
+    extra_preprocess_required_env_vars: List[str] = [""]
+
+    def _add_preprocess(self, add=False):
+        condition = self.add_preprocess_enable if add else self.extra_preprocess_enable
+        if condition:
+            self._add_script("preprocess")
+            self._add_t2i_models()
