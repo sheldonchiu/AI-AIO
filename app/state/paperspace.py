@@ -1,22 +1,27 @@
-from app.utils.constants import *
-from app.utils.functions import *
-import reflex as rx
-from reflex.utils import types
-from app.app import BaseState
-from reflex.event import EventHandler
-from typing import Optional, Dict, List, Union, Set
-import typing
-from sqlmodel import Field, select
-from app.backend.paperspace_util import Paperspace_client
 import asyncio
-import time
 import json
-from collections import OrderedDict
-from reflex import constants
-import gradient
+import time
 
 import logging
 logger = logging.getLogger(__name__)
+
+from collections import OrderedDict
+import typing
+from typing import Dict, List, Optional, Set, Union
+
+import gradient
+
+import reflex as rx
+from reflex import constants
+from reflex.utils import types
+from reflex.event import EventHandler
+
+from sqlmodel import Field, select
+
+from app.app import BaseState
+from app.utils.constants import *
+from app.utils.functions import *
+from app.backend.paperspace_util import Paperspace_client
 
 class Environment(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -42,58 +47,45 @@ class Environment(rx.Model, table=True):
     extra_info: Optional[str]
 
 class PaperspaceState(BaseState):
-    """Represents the state of the Paperspace app.
+    """Class representing the state of Paperspace."""
 
-    Attributes:
-        power_light (str): The color of the power light, either "red-700" or "green-700".
-        power_button (str): The label of the power button, either "Start" or "Stop".
-        show_progress_for_start_button (bool): Whether to show progress when the "Start" button is clicked.
-        environments (List[Environment]): A list of available environments.
-        env_type (str): The type of the currently selected environment.
-        retry_count (int): The number of times a retry has been attempted.
-        retry_str (str): A string describing what is being retried.
-        interrupt_running (bool): A signal to interrupt the current start job.
-
-    Properties:
-        display_retry_count (bool): Whether the retry count is greater than zero.
-        retry_count_str (str): A string representation of the retry count and retry string.
-        is_env_selected (bool): Whether an environment has been selected.
-
-    Methods:
-        update_envs(): Updates the list of available environments.
-        _toggle_power(status): Toggles the power button and light based on the given status.
-    """
-    power_light: str = "red-700"
-    power_button: str = "Start"
-    show_progress_for_start_button: bool = False
-    environments: List[Environment] = []
-    env_type: str = ""
-    retry_count: int = 0
-    retry_str = ""
-    _task_to_interrupt: Set[str] = set()
-    _task_need_wait: Set[str] = set()
-    _background_tasks: Set[str] = set()
+    power_light: str = "red-700"  # color of the power light
+    power_button: str = "Start"  # text on the power button
+    show_progress_for_start_button: bool = False  # whether to show progress for the start button
+    environments: List[Environment] = []  # list of environments
+    env_type: str = ""  # type of environment
+    retry_count: int = 0  # number of retries
+    retry_str = ""  # retry string
+    _task_to_interrupt: Set[str] = set()  # set of tasks to interrupt
+    _task_need_wait: Set[str] = set()  # set of tasks that need to wait
+    _background_tasks: Set[str] = set()  # set of background tasks
 
     @rx.var
     def display_retry_count(self) -> bool:
+        """Whether to display the retry count."""
         return self.retry_count > 0
-    
+
     @rx.var
     def retry_count_str(self) -> str:
+        """String representation of the retry count."""
         return f"{self.retry_str}: {self.retry_count}"
 
     @rx.var
     def is_env_selected(self) -> bool:
+        """Whether an environment is selected."""
         return self.env_type != ""
-    
+
     @rx.var
     def get_env_download_link(self) -> str:
+        """Get the download link for the environment."""
         return f"{constants.API_URL}/download_env/{self.get_token()}"
-    
+
     def interrupt_task(self, name:str):
+        """Interrupt a task."""
         self._task_to_interrupt.add(name)
-    
+
     def update_envs(self):
+        """Update the list of environments."""
         if WEB_HOSTING == False:
             try:
                 with rx.session() as session:
@@ -103,12 +95,14 @@ class PaperspaceState(BaseState):
                 print_msg(self, "Error", "Failed to fetch environments from database.")
 
     def _toggle_power(self, status):
+        """Toggle the power status."""
         if status:
             self.power_button = "Stop"
             self.power_light = "green-700"
         else:
             self.power_button = "Start"
             self.power_light = "red-700"
+
         
 def timeout_check(start_time: float):
     """Checks if the elapsed time since the given start time has exceeded the predefined timeout.
@@ -178,11 +172,29 @@ class EnvState(ToolState):
     _start_time: float = 0
     
     def _clean_exit_task(self, name):
+        """
+        Cleanly exits a task by removing it from various internal sets.
+
+        Parameters:
+            name (str): The name of the task to be cleaned.
+
+        Returns:
+            None
+        """
         self._task_to_interrupt.discard(name)
         self._background_tasks.discard(name)
         self._task_need_wait.discard(name)
     
     def _reset_env(self, all=False):
+        """
+        Resets the environment variables to their default values.
+
+        Parameters:
+            all (bool): If True, resets all variables including the 'env_type' variable. If False, only resets variables starting with 'env_' or 'extra_'.
+        
+        Returns:
+            None
+        """
         defaults = EnvState.get_fields()
         for key in self.vars.keys():
             if key.startswith("env_") or key.startswith('extra_') and (all or key != 'env_type'):
@@ -210,6 +222,7 @@ class EnvState(ToolState):
         
         self._add_sd_webui(add)
         self._add_sd_comfy(add)
+        self._add_sd_fooocus(add)
         self._add_preprocess(add)
         self._add_sd_volta(add)
         self._add_image_browser(add)
@@ -226,6 +239,15 @@ class EnvState(ToolState):
         self._add_rclone(add)
                     
     def _validate_env(self, validate_gpu= False) -> bool:
+        """
+        Validate the environment settings.
+
+        Args:
+            validate_gpu (bool): Flag indicating whether to validate GPU settings.
+        
+        Returns:
+            bool: True if the environment is valid, False otherwise.
+        """
         if validate_gpu and not any(self.gpu_list.values()):
             print_msg(self, "Error", "No GPU selected")
             return False
@@ -254,6 +276,16 @@ class EnvState(ToolState):
         return True
     
     def set_action_status(self, name, status):
+        """
+        Sets the status of an action.
+
+        Parameters:
+            name (str): The name of the action.
+            status (bool): The status of the action.
+
+        Returns:
+            None
+        """
         var_name = f"{name}_action_in_progress"
         progress = f"{name}_action_progress"
         log = f"{name}_action_log"
@@ -269,6 +301,16 @@ class EnvState(ToolState):
             
     @batch_update_state
     async def start_stop_notebook(self) -> Union[None, EventHandler]:
+        """
+        This function starts or stops a notebook based on the value of `self.power_button`.
+        If `self.power_button` is set to "Stop", it stops the notebook and returns `None`.
+        If `self.power_button` is not set to "Stop", it validates the environment and
+        starts the notebook.
+
+        Returns:
+            Union[None, EventHandler]: The `start_notebook` coroutine if `self.power_button` is not set to "Stop", otherwise `None`.
+        """
+
         self.retry_count = 0
         self._client = Paperspace_client(self.env_api_key)
         
@@ -289,6 +331,19 @@ class EnvState(ToolState):
         return self.start_notebook
         
     async def start_notebook(self) -> Union[None, EventHandler]:
+        """
+        Starts the notebook asynchronously.
+
+        Returns:
+            Union[None, EventHandler]: If "start_notebook" is in _task_to_interrupt, cleans up and returns None.
+            If "start_notebook" is in _task_need_wait, waits for PAPERSPACE_START_RATE seconds and returns self.start_notebook.
+            If there is no available GPU, logs a message, increments the retry count, adds "start_notebook" to _task_need_wait, and returns self.start_notebook.
+            If the environment type is "existing", starts the notebook with the specified notebook ID and GPU, and returns self.check_notebook_status.
+            If the environment type is "new", prepares the environment, creates a project, deletes the notebook from the project, and creates a new notebook with the specified parameters. Sets optional parameters if provided. Returns self.check_notebook_status.
+            If a ResourceFetchingError occurs and the error message contains "We are currently out of capacity", logs a warning message, increments the retry count, adds "start_notebook" to _task_need_wait, and returns self.start_notebook.
+            If any other exception occurs, logs an exception message, increments the retry count, adds "start_notebook" to _task_need_wait, and returns self.start_notebook.
+            If any exception occurs during the execution of the function, prints an error message, turns off the power, sets show_progress_for_start_button to False, and cleans up.
+        """
         if "start_notebook" in self._task_to_interrupt:
             self._clean_exit_task("start_notebook")
             self.show_progress_for_start_button = False
@@ -305,7 +360,7 @@ class EnvState(ToolState):
             # wait for gpu to be available
             if gpu is None:
                 logger.info("No available GPU, retrying in 5 seconds")
-                self.retry_str = "No GPU"
+                self.retry_str = "No GPU, retrying"
                 self.retry_count += 1
                 self._task_need_wait.add("start_notebook")
                 return self.start_notebook
@@ -342,13 +397,19 @@ class EnvState(ToolState):
                     # raise Exception
                 # Success, proceed to check status
                 return self.check_notebook_status
-            except gradient.api_sdk.sdk_exceptions.ResourceFetchingError:
+            except gradient.api_sdk.sdk_exceptions.ResourceFetchingError as e:
+                if "We are currently out of capacity" in str(e):
+                    logger.warning("Out of capacity")
+                    self.retry_str = "No GPU, retrying"
+                    self.retry_count += 1
+                    self._task_need_wait.add("start_notebook")
+                    return self.start_notebook
                 # don't continue if encounter this error
                 raise
             except Exception as e:
                 # Sometimes the GPU is not available after the first check
                 logger.exception("Failed to start notebook")
-                self.retry_str = "Failed to start"
+                self.retry_str = "Failed to start, retrying"
                 self.retry_count += 1
                 self._task_need_wait.add("start_notebook")
                 return self.start_notebook
@@ -389,10 +450,10 @@ class EnvState(ToolState):
 
         elif notebook.state == "Failed":
             logger.info("Notebook failed to start, maybe their platform is down")
-            print_msg(self, "Error", "Notebook failed to start, maybe their platform is down")
+            print_msg(self, "Error", "Notebook failed to start, maybe their platform is down, please retry later")
             # continue to clean up
         else:
-            logger.info("Notebook not running, retrying in 5 seconds")
+            logger.info("Waiting for Notebook to start, retrying in 5 seconds")
             self.retry_str = "Waiting for Notebook to start"
             self.retry_count += 1
             self._task_need_wait.add("start_notebook")
@@ -493,12 +554,10 @@ class EnvState(ToolState):
         except:
             print_msg(self, "Error", "Internal error, unable to load selected environment")
             return  
-    
-    @batch_update_state
-    def save_env(self):
-        if not self._validate_env():
-            return
         
+    @batch_update_state
+    def copy_env(self):
+        self.env_name = f"{self.env_name}_copy"
         def create_env():
             kwargs = {  key: getattr(self, key) 
                 for key in self.vars.keys() 
@@ -511,49 +570,126 @@ class EnvState(ToolState):
                                         })
             return Environment(**kwargs)
         try:
+            data = create_env()
             if WEB_HOSTING:
+                id = get_next_id(self.environments)
+                data.id = id
+                self.env_id = str(id)
+                self.environments.append(data)
+            else:
+                with rx.session() as session:
+                    session.add(data)
+                    session.commit()
+                    self.env_id = str(data.id)
+                    self.update_envs.fn(self)
+        except:
+            print_msg(self, "Error", "Internal error, unable to copy environment")
+            return
+
+        print_msg(self, "Success", "Environment Copied.")       
+    
+    @batch_update_state
+    def save_env(self):
+        """
+        Save the environment.
+
+        This function is responsible for saving the environment. It creates an environment object using the variables stored in `self.vars` that start with "env_" but are not "env_id". The extra information is stored as a JSON string in the "extra_info" field of the environment object.
+
+        If `WEB_HOSTING` is `True`, the environment object is created and updated in the `self.environments` list based on `self.env_id`. If `self.env_id` is empty, a new ID is generated and assigned to the environment object and it is appended to the `self.environments` list.
+
+        If `WEB_HOSTING` is `False`, a session is started and the environment object is updated or added to the database based on `self.env_id`. If `self.env_id` is empty or the corresponding row in the database is not found, a new environment object is created and added to the database.
+
+        After saving the environment, the `self.update_envs.fn` function is called to update the environments.
+
+        Raises:
+            Any exception that occurs during the saving of the environment will result in an "Internal error, unable to save environment" message being printed.
+
+        Returns:
+            None. If the environment is successfully saved, a "Environment saved." message is printed.
+        """
+        def create_env():
+            # Create a dictionary of attributes for the environment object
+            kwargs = {
+                key: getattr(self, key)
+                for key in self.vars.keys()
+                if key.startswith("env_") and key not in ["env_id"]
+            }
+
+            # Add extra_info attribute to the dictionary, which is a JSON string
+            kwargs["extra_info"] = json.dumps({
+                key: getattr(self, key)
+                for key in self.vars.keys()
+                if key.startswith("extra_")
+            })
+
+            # Create and return the Environment object with the specified attributes
+            return Environment(**kwargs)
+
+        try:
+            # Check if the code is running in a web hosting environment
+            if WEB_HOSTING:
+                # Create an environment object
                 data = create_env()
+
+                # Check if an environment is selected
                 if self.env_id != "":
-                    # if env is selected, perfrom update
+                    # Update the existing environment with the new data
                     for idx, env in enumerate(self.environments):
                         if env.id == int(self.env_id):
                             data.id = env.id
                             self.environments[idx] = data
                             break
                 else:
+                    # Generate a new id for the environment
                     id = get_next_id(self.environments)
                     data.id = id
                     self.env_id = str(id)
+                    # Add the new environment to the list
                     self.environments.append(data)
             else:
+                # Perform the following operations in a database session
                 with rx.session() as session:
-                    # if env is selected, perfrom update
-                    row_to_edit = session.query(Environment).filter(
-                        Environment.id == self.env_id).first()
-                    if self.env_id != "" and row_to_edit is not None:
-                        extra_info = {}
-                        for key in self.vars.keys():
-                            value = getattr(self, key, None)
-                            if value is not None:
-                                if key.startswith("env_") and key != "env_id":
-                                    setattr(row_to_edit, key, value)
-                                elif key.startswith("extra_"):
-                                    extra_info[key] = value
-                        row_to_edit.extra_info = json.dumps(extra_info)
-                        session.commit()
-                    # if env is not selected, perform insert
+                    # Check if an environment is selected
+                    if self.env_id != "":
+                        # Get the row to edit from the database
+                        row_to_edit = session.query(Environment).filter(
+                            Environment.id == self.env_id).first()
+                        if row_to_edit is not None:
+                            # Create a dictionary to store extra_info attributes
+                            extra_info = {}
+                            # Loop through all the attributes
+                            for key in self.vars.keys():
+                                # Get the value of the attribute
+                                value = getattr(self, key, None)
+                                if value is not None:
+                                    if key.startswith("env_") and key != "env_id":
+                                        # Update the attribute in the row_to_edit object
+                                        setattr(row_to_edit, key, value)
+                                    elif key.startswith("extra_"):
+                                        # Add the attribute to the extra_info dictionary
+                                        extra_info[key] = value
+                            # Convert the extra_info dictionary to a JSON string
+                            row_to_edit.extra_info = json.dumps(extra_info)
+                            # Commit the changes to the database
+                            session.commit()
                     else:
+                        # Create a new environment object
                         data = create_env()
+                        # Add the environment object to the database
                         session.add(data)
                         session.commit()
                         self.env_id = str(data.id)
-                        
+
+                    # Call the update_envs function
                     self.update_envs.fn(self)
         except:
+            # Print an error message if an exception occurs
             print_msg(self, "Error", "Internal error, unable to save environment")
             return
 
+        # Print a success message
         print_msg(self, "Success", "Environment saved.")
+
 
 
     async def import_env(self, file: List[rx.UploadFile]):

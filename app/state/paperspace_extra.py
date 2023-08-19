@@ -175,6 +175,31 @@ class ToolState(NewEnvState):
             if self.extra_sd_comfy_update:
                 set_value(self, "SD_COMFY_UPDATE_REPO", "auto", "")
 
+    #### Stable Diffusion Fooocus ####
+    sd_fooocus_action_in_progress: bool = False
+    sd_fooocus_action_progress: str = ""
+    sd_fooocus_action_log: str = ""
+    sd_fooocus_view_log: bool = False
+    sd_fooocus_substage: Dict[str, List[str]] = {
+        "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Stable Diffusion Fooocus", "download_model": True}).split("\n") if f],
+        "stop": [],
+        "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Stable Diffusion Fooocus", "download_model": True}).split("\n") if f],
+    }
+    extra_sd_fooocus_enable: bool = False
+    add_sd_fooocus_enable: bool = False
+    extra_sd_fooocus_update: bool = False
+    extra_sd_fooocus_required_env_vars: List[str] = [""]
+    extra_sd_fooocus_args: str = ""
+
+    def _add_sd_fooocus(self, add=False):
+        condition = self.add_sd_fooocus_enable if add else self.extra_sd_fooocus_enable
+        if condition:
+            self._add_script("sd_fooocus")
+            self._add_t2i_models()
+            self._environment_variables['EXTRA_SD_FOOOCUS_ARGS'] = self.extra_sd_fooocus_args
+            if self.extra_sd_fooocus_update:
+                set_value(self, "SD_FOOOCUS_UPDATE_REPO", "auto", "")
+                
     #### Minio ####
     minio_action_in_progress: bool = False
     minio_action_progress: str = ""
