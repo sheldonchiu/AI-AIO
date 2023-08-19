@@ -194,6 +194,8 @@ def extra_options(add=False) -> rx.component:
     sd = [
         extra_sd_webui(add),
         extra_sd_comfy(add),
+        extra_sd_fooocus(add),
+        extra_preprocess(add),
         # extra_sd_volta(add),
         extra_t2i_image_browser(add)
     ]
@@ -383,6 +385,25 @@ def prepare_create_env_select_button() -> rx.Component:
         menu
     )
 
+def prepare_copy_button() -> rx.Component:
+    return el.div(
+            *wrap_tooltip(
+                rx.button(
+                rx.icon(tag="copy"),
+                size='sm',
+                id="copy-env-button",
+                class_name="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600",
+                is_disabled=rx.cond(
+                    PaperspaceState.is_env_selected, False, True),
+                on_click=[
+                    lambda: EnvState.copy_env(
+                        get_ref_value_fn(prefix="main")),
+                    PaperspaceState.update_envs,
+                ]
+            ),
+                "Copy a new environment",
+        )
+    )
 
 def prepare_gpu_list(gpu_list) -> rx.Component:
     prefix = get_page_id_prefix(Page.main)
@@ -467,6 +488,7 @@ def prepare_env_panel() -> rx.Component:
 
                     ),
                     prepare_create_env_select_button(),
+                    prepare_copy_button(),
                     prepare_sync_env_button(),
                 ),
                 rx.cond(

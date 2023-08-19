@@ -457,6 +457,48 @@ def extra_sd_comfy(add=False) -> rx.Component:
         ),
     )
 
+def extra_sd_fooocus(add=False) -> rx.Component:
+    prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
+    return rx.accordion_item(
+        rx.accordion_button(
+            rx.text("Stable Diffusion Fooocus"),
+            rx.accordion_icon(),
+            class_name=ACCORDION_BUTTON_CLS,
+        ),
+        rx.accordion_panel(
+            wrap_row(
+                rx.checkbox("Enable",
+                            id=f"{prefix}add_sd_fooocus_enable" if add else f"{prefix}extra_sd_fooocus_enable",
+                            class_name=add_class_tag(
+                                TEXT_COLOR_CLASS, "text-sm"),
+                            ),
+                rx.checkbox("Update to latest",
+                            id=f"{prefix}extra_sd_fooocus_update",
+                            class_name=add_class_tag(
+                                TEXT_COLOR_CLASS, "text-sm"),
+                            ),
+                # wrap="wrap",
+                # spacing="1em",
+            ),
+            wrap_row(
+                component_with_title("Extra Args (Optional)",
+                        rx.input,
+                        input_kwargs={
+                            "id": f"{prefix}extra_sd_fooocus_args"},
+                        vstack_kwargs={"align_items": "start"}
+                        ),
+            ),
+            rx.cond(
+                add,
+                rx.cond(
+                    EnvState.sd_fooocus_action_in_progress,
+                    progress_log_panel("sd_fooocus"),
+                    component_action_panel("sd_fooocus"),
+                ),
+            ),
+            class_name="overflow-y-auto w-full"
+        ),
+    )
 
 def extra_t2i_image_browser(add=False) -> rx.Component:
     prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
@@ -909,6 +951,34 @@ def extra_kosmos2(add=False) -> rx.component:
                     EnvState.kosmos2_action_in_progress,
                     progress_log_panel("kosmos2"),
                     component_action_panel("kosmos2"),
+                ),
+            ),
+            class_name="overflow-y-auto w-full"
+        ),
+    )
+    
+def extra_preprocess(add=False) -> rx.component:
+    prefix = get_page_id_prefix(Page.control_panel if add else Page.main)
+    return rx.accordion_item(
+        rx.accordion_button(
+            rx.text("SD Trainer"),
+            rx.accordion_icon(),
+            class_name=ACCORDION_BUTTON_CLS,
+        ),
+        rx.accordion_panel(
+            wrap_row(
+                rx.checkbox("Enable",
+                            id=f"{prefix}add_preprocess_enable" if add else f"{prefix}extra_preprocess_enable",
+                            class_name=add_class_tag(
+                                TEXT_COLOR_CLASS, "text-sm"),
+                            ),
+            ),
+            rx.cond(
+                add,
+                rx.cond(
+                    EnvState.preprocess_action_in_progress,
+                    progress_log_panel("preprocess"),
+                    component_action_panel("preprocess"),
                 ),
             ),
             class_name="overflow-y-auto w-full"
