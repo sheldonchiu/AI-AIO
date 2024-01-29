@@ -199,6 +199,31 @@ class ToolState(NewEnvState):
             self._environment_variables['EXTRA_SD_FOOOCUS_ARGS'] = self.extra_sd_fooocus_args
             if self.extra_sd_fooocus_update:
                 set_value(self, "SD_FOOOCUS_UPDATE_REPO", "auto", "")
+
+    #### Stable Diffusion SimpleSDXL ####
+    sd_simplesdxl_action_in_progress: bool = False
+    sd_simplesdxl_action_progress: str = ""
+    sd_simplesdxl_action_log: str = ""
+    sd_simplesdxl_view_log: bool = False
+    sd_simplesdxl_substage: Dict[str, List[str]] = {
+        "start": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Stable Diffusion Simplesdxl", "download_model": True}).split("\n") if f],
+        "stop": [],
+        "reload": [f for f in STAGE_BASE_TEMPLATE.render({'title': "Stable Diffusion Simplesdxl", "download_model": True}).split("\n") if f],
+    }
+    extra_sd_simplesdxl_enable: bool = False
+    add_sd_simplesdxl_enable: bool = False
+    extra_sd_simplesdxl_update: bool = False
+    extra_sd_simplesdxl_required_env_vars: List[str] = [""]
+    extra_sd_simplesdxl_args: str = ""
+
+    def _add_sd_simplesdxl(self, add=False):
+        condition = self.add_sd_simplesdxl_enable if add else self.extra_sd_simplesdxl_enable
+        if condition:
+            self._add_script("sd_simplesdxl")
+            self._add_t2i_models()
+            self._environment_variables['EXTRA_SD_SIMPLESDXL_ARGS'] = self.extra_sd_simplesdxl_args
+            if self.extra_sd_simplesdxl_update:
+                set_value(self, "SD_SIMPLESDXL_UPDATE_REPO", "auto", "")
                 
     #### Minio ####
     minio_action_in_progress: bool = False
