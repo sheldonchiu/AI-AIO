@@ -195,6 +195,7 @@ def extra_options(add=False) -> rx.component:
         extra_sd_webui(add),
         extra_sd_comfy(add),
         extra_sd_fooocus(add),
+        extra_sd_simplesdxl(add),
         extra_preprocess(add),
         # extra_sd_volta(add),
         extra_t2i_image_browser(add)
