@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     ports:
       - 8000:8000
-    entrypoint: reflex run --env prod --backend-only
+    entrypoint: reflex run --env prod
     
   redis:
     image: redis:latest

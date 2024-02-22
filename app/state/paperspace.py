@@ -220,12 +220,17 @@ class EnvState(ToolState):
         self._add_discord()
         # self._add_cloudflared(add)
         
+        # quick operations first
+        self._add_image_browser(add)
+        self._add_minio(add)
+        self._add_rclone(add)
+        
         self._add_sd_webui(add)
         self._add_sd_comfy(add)
         self._add_sd_fooocus(add)
         self._add_preprocess(add)
         self._add_sd_volta(add)
-        self._add_image_browser(add)
+        
         
         self._add_fastchat(add)
         self._add_textgen(add)
@@ -234,9 +239,6 @@ class EnvState(ToolState):
         
         self._add_musicgen(add)
         self._add_kosmos2(add)
-        
-        self._add_minio(add)
-        self._add_rclone(add)
                     
     def _validate_env(self, validate_gpu= False) -> bool:
         """
